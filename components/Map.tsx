@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
@@ -20,6 +20,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
     const mapRef = useRef<maplibregl.Map>(null); // Ref to the map instance
     const { location } = useLocation();
     const hasCentered = useRef(false);
+    const [restaurantMarkerOpacity, setRestaurantMarkerOpacity] = useState(1);
 
     // Default to Vancouver center
     const defaultCenter = { lng: -123.1207, lat: 49.2827 };
@@ -38,6 +39,43 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
             }, 100);
         }
     }, [isVisible, location, restaurants]);
+
+    useEffect(() => {
+        let cleanup: (() => void) | null = null;
+        let frameId: number | null = null;
+
+        const attachZoomListener = () => {
+            if (!mapRef.current) {
+                frameId = requestAnimationFrame(attachZoomListener);
+                return;
+            }
+
+            const map = mapRef.current;
+            const updateOpacity = () => {
+                const zoom = map.getZoom();
+                const opacity = zoom <= 11 ? 0.45 : zoom <= 12.5 ? 0.65 : zoom <= 14 ? 0.85 : 1;
+                setRestaurantMarkerOpacity(opacity);
+            };
+
+            updateOpacity();
+            map.on("zoom", updateOpacity);
+            map.on("load", updateOpacity);
+
+            cleanup = () => {
+                map.off("zoom", updateOpacity);
+                map.off("load", updateOpacity);
+            };
+        };
+
+        attachZoomListener();
+
+        return () => {
+            if (frameId) {
+                cancelAnimationFrame(frameId);
+            }
+            cleanup?.();
+        };
+    }, []);
 
     const fitMapToBounds = (loc: { lat: number, lng: number }, rests: RestaurantCard[]) => {
         if (!mapRef.current) return;
@@ -88,7 +126,8 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                     >
                         <MarkerContent className="z-50">
                             <div className="relative flex h-6 w-6 items-center justify-center">
-                                <div className="absolute h-12 w-12 rounded-full bg-blue-500/20 ring-2 ring-white/70 shadow-[0_0_0_6px_rgba(59,130,246,0.15)]" />
+                                <div className="absolute h-10 w-10 animate-ping rounded-full bg-blue-500/20" />
+                                <div className="absolute h-10 w-10 rounded-full bg-blue-500/15 ring-2 ring-white/80" />
                                 <div className="absolute h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
                             </div>
                         </MarkerContent>
@@ -104,8 +143,11 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         className="cursor-pointer hover:z-50"
                     >
                         {/* 1. Dot with Rating */}
-                        <MarkerContent>
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white border-2 border-white shadow-md transition-transform hover:scale-110">
+                        <MarkerContent className="transition-opacity duration-200">
+                            <div
+                                className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white border-2 border-white shadow-md transition-transform hover:scale-110"
+                                style={{ opacity: restaurantMarkerOpacity }}
+                            >
                                 <span className="text-[10px] font-bold">
                                     {restaurant.rating.toFixed(1)}
                                 </span>
