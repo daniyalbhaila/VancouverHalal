@@ -3,29 +3,31 @@
 import { RestaurantCard as RestaurantType } from '@/lib/data';
 import { RestaurantCard } from '@/components/RestaurantCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
-import { Map, Loader2, SlidersHorizontal, MapPin, ArrowUpDown, AlignJustify } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Loader2, SlidersHorizontal, MapPin } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
-import { calculateDistance } from '@/lib/location';
-import MapComponent from '@/components/Map';
+import dynamic from 'next/dynamic';
+import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/restaurants';
 
-// Extend type to include distance for UI
-type RestaurantWithDistance = RestaurantType & { distance?: number };
+const MapComponent = dynamic(() => import('@/components/Map'), {
+    ssr: false,
+    loading: () => (
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-base)]">
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        </div>
+    ),
+});
 
 interface HomeClientProps {
     initialRestaurants: RestaurantType[];
 }
 
 export default function HomeClient({ initialRestaurants }: HomeClientProps) {
-    const router = useRouter();
     const searchParams = useSearchParams();
-    const initialView = searchParams.get('view') === 'map' ? 'map' : 'list';
 
-    const { location, loading: locationLoading, error: locationError } = useLocation();
-    const [restaurants, setRestaurants] = useState<RestaurantWithDistance[]>(initialRestaurants);
+    const { location, loading: locationLoading } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
 
     // Sync view with URL param on mount and updates
@@ -50,16 +52,9 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
     const filteredRestaurants = useMemo(() => {
-        let result: RestaurantWithDistance[] = [...initialRestaurants];
+        let result: RestaurantWithDistance[] = addDistanceToRestaurants(initialRestaurants, location);
 
         // 0. Calculate Distance if location is available
-        if (location) {
-            result = result.map(r => ({
-                ...r,
-                distance: calculateDistance(location.lat, location.lng, r.location.lat, r.location.lng)
-            }));
-        }
-
         // 1. Filter by Category
         if (selectedCategory) {
             result = result.filter(r =>
@@ -208,7 +203,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 ) : filteredRestaurants.length > 0 ? (
                     filteredRestaurants.map((restaurant) => (
                         <div key={restaurant.id} className="relative">
-                            <RestaurantCard data={restaurant} />
+                            <RestaurantCard data={{ ...restaurant, distance: restaurant.distance ?? undefined }} />
                         </div>
                     ))
                 ) : (
@@ -244,10 +239,12 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 )}
             </div>
 
-            {/* Map View (Always mounted, just hidden) */}
-            <div className={cn("fixed inset-0 top-[110px] z-20 bg-zinc-50", view === 'list' ? 'hidden' : 'block')}>
-                <MapComponent restaurants={filteredRestaurants} isVisible={view === 'map'} />
-            </div>
+            {/* Map View (Only mounted when visible) */}
+            {view === 'map' && (
+                <div className="fixed inset-0 top-[110px] z-20 bg-zinc-50">
+                    <MapComponent restaurants={filteredRestaurants} isVisible />
+                </div>
+            )}
 
 
         </div >
