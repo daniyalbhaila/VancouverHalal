@@ -9,18 +9,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
 import { Map as MapComponent, MapControls, MapMarker, MarkerContent, MarkerLabel, MarkerPopup } from '@/components/ui/map';
 
-// Helper component to handle map events
-function MapEvents({ onClick }: { onClick: () => void }) {
-    const { map } = useMap();
-    useEffect(() => {
-        if (!map) return;
-        map.on('click', onClick);
-        return () => {
-            map.off('click', onClick);
-        };
-    }, [map, onClick]);
-    return null;
-}
+
 
 interface MapProps {
     restaurants: RestaurantCard[];
