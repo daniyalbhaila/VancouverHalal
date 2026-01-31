@@ -39,14 +39,14 @@ export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen 
                         "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0",
                         showOpenOnly
                             ? "bg-emerald-500 text-white border-emerald-500 shadow-md transform scale-105"
-                            : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50"
+                            : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:bg-[var(--glass-bg)]"
                     )}
                 >
                     <Clock className="w-3.5 h-3.5" />
                     Open Now
                 </button>
 
-                <div className="w-px h-6 bg-zinc-200 shrink-0 mx-1" />
+                <div className="w-px h-6 bg-[var(--glass-border)] shrink-0 mx-1" />
 
                 {CATEGORIES.map((cat) => {
                     const isSelected = selected === cat || (cat === "All" && selected === "");
@@ -57,8 +57,8 @@ export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen 
                             className={cn(
                                 "px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all",
                                 isSelected
-                                    ? "bg-zinc-900 text-white shadow-md transform scale-105"
-                                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                                    ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-md transform scale-105"
+                                    : "bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
                             )}
                         >
                             {cat}
@@ -66,6 +66,6 @@ export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen 
                     );
                 })}
             </div>
-        </div>
+        </div >
     );
 }

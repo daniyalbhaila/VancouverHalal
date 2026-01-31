@@ -103,12 +103,12 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
 
     return (
-        <div className="min-h-screen bg-zinc-50 relative">
+        <div className="min-h-screen bg-[var(--bg-base)] relative transition-colors">
             <div className={cn(
                 "sticky top-14 z-30",
-                "bg-white/50 backdrop-blur-2xl shadow-lg shadow-zinc-900/5",
-                "border-b border-white/50 ring-1 ring-zinc-900/5",
-                "transform-gpu"
+                "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-lg",
+                "border-b border-[var(--glass-border)]",
+                "transform-gpu transition-colors"
             )}>
                 <CategoryFilter
                     selected={selectedCategory}
@@ -124,7 +124,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                         {locationLoading ? (
                             <span className="animate-pulse">Locating...</span>
                         ) : location ? (
-                            <span>Within <span className="font-bold text-zinc-900">{radius > 50 ? 'Unlimited' : `${radius}km`}</span></span>
+                            <span>Within <span className="font-bold text-[var(--text-primary)]">{radius > 50 ? 'Unlimited' : `${radius}km`}</span></span>
                         ) : (
                             <span className="text-amber-500">Location needed for distance</span>
                         )}
@@ -132,7 +132,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={cn("flex items-center gap-1 font-bold transition-colors", showFilters ? "text-emerald-500" : "text-zinc-600")}
+                        className={cn("flex items-center gap-1 font-bold transition-colors", showFilters ? "text-emerald-500" : "text-[var(--text-secondary)]")}
                     >
                         <SlidersHorizontal className="w-3 h-3" />
                         <span>Filters</span>
@@ -141,10 +141,10 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
                 {/* Expandable Filter Controls */}
                 {showFilters && (
-                    <div className="px-4 py-4 bg-zinc-50 border-t border-zinc-100 space-y-4 animate-in slide-in-from-top-2">
+                    <div className="px-4 py-4 bg-[var(--bg-card)] border-t border-[var(--glass-border)] space-y-4 animate-in slide-in-from-top-2">
                         {/* Radius Slider */}
                         <div className="flex flex-col gap-2">
-                            <div className="flex justify-between text-xs font-bold text-zinc-700">
+                            <div className="flex justify-between text-xs font-bold text-[var(--text-secondary)]">
                                 <span>Radius</span>
                                 <span>{radius > 50 ? "Unlimited" : `${radius} km`}</span>
                             </div>
@@ -154,29 +154,29 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                                 max="51"
                                 value={radius}
                                 onChange={(e) => setRadius(Number(e.target.value))}
-                                className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                className="w-full h-2 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer accent-emerald-500"
                             />
                         </div>
 
                         {/* Sort Toggle */}
                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-zinc-700">Sort by:</span>
-                            <div className="flex bg-white rounded-lg p-1 border border-zinc-200 shadow-sm w-full">
+                            <span className="text-xs font-bold text-[var(--text-secondary)]">Sort by:</span>
+                            <div className="flex bg-[var(--bg-card)] rounded-lg p-1 border border-[var(--glass-border)] shadow-sm w-full">
                                 <button
                                     onClick={() => setSortBy('recommended')}
-                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'recommended' ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-900")}
+                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'recommended' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Rec.
                                 </button>
                                 <button
                                     onClick={() => setSortBy('distance')}
-                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'distance' ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-900")}
+                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'distance' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Dist.
                                 </button>
                                 <button
                                     onClick={() => setSortBy('rating')}
-                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'rating' ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-900")}
+                                    className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'rating' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Rating
                                 </button>

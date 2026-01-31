@@ -25,9 +25,9 @@ export default function BottomNav() {
                 animate={{ y: 0, opacity: 1 }}
                 className={cn(
                     "flex items-center justify-between px-6 py-3 w-full max-w-[320px]",
-                    "bg-white/70 backdrop-blur-2xl shadow-2xl shadow-zinc-900/10",
-                    "rounded-full border border-white/50 ring-1 ring-zinc-900/5",
-                    "transform-gpu" // Hardware accel for blur
+                    "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-2xl",
+                    "rounded-full border border-[var(--glass-border)]",
+                    "transform-gpu transition-colors"
                 )}
             >
                 {tabs.map((tab) => (
@@ -39,7 +39,7 @@ export default function BottomNav() {
                         {tab.isActive && (
                             <motion.div
                                 layoutId="nav-pill"
-                                className="absolute inset-0 bg-white/50 rounded-full shadow-inner"
+                                className="absolute inset-0 bg-[var(--glass-bg)] rounded-full shadow-inner"
                                 style={{ backdropFilter: "blur(4px)" }}
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                             />
@@ -49,8 +49,8 @@ export default function BottomNav() {
                                 className={cn(
                                     "w-6 h-6 transition-all duration-300",
                                     tab.isActive
-                                        ? "text-zinc-900 stroke-[2.5px] scale-110 drop-shadow-sm"
-                                        : "text-zinc-400 hover:text-zinc-600"
+                                        ? "text-[var(--text-primary)] stroke-[2.5px] scale-110 drop-shadow-sm"
+                                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                                 )}
                             />
                         </span>

@@ -19,6 +19,16 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
     const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantCard | null>(null);
     const { location } = useLocation();
     const hasCentered = useRef(false);
+    const [isDark, setIsDark] = useState(false);
+
+    // Detect dark mode preference - DISABLED FOR NOW
+    // useEffect(() => {
+    //     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    //     setIsDark(mediaQuery.matches);
+    //     const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    //     mediaQuery.addEventListener('change', handler);
+    //     return () => mediaQuery.removeEventListener('change', handler);
+    // }, []);
 
     // Resize map when visibility changes
     useEffect(() => {
@@ -80,7 +90,9 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
 
         map.current = new maplibregl.Map({
             container: mapContainer.current,
-            style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+            style: isDark
+                ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+                : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
             center: location ? [location.lng, location.lat] : [defaultCenter.lng, defaultCenter.lat],
             zoom: location ? 14 : 12,
             attributionControl: false,
@@ -108,7 +120,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
 
         restaurants.forEach((restaurant) => {
             const el = document.createElement('div');
-            el.className = 'w-10 h-10 bg-zinc-900 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:scale-110 transition-transform z-10';
+            el.className = 'w-10 h-10 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform z-10 ' + (isDark ? 'bg-white text-zinc-900' : 'bg-zinc-900 text-white');
             el.innerText = restaurant.rating.toFixed(1);
 
             // Add click listener to marker
@@ -147,15 +159,15 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-24 rounded-t-[2.5rem] bg-zinc-100/80 backdrop-blur-xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-white/20"
+                        className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-24 rounded-t-[2.5rem] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[0_-10px_40px_var(--glass-shadow)] border-t border-[var(--glass-border)] transition-colors"
                     >
                         {/* Drag Handle */}
-                        <div className="w-12 h-1.5 bg-zinc-300 rounded-full mx-auto mb-4" />
+                        <div className="w-12 h-1.5 bg-[var(--text-secondary)] rounded-full mx-auto mb-4 opacity-50" />
 
                         {/* Close Button */}
                         <button
                             onClick={() => setSelectedRestaurant(null)}
-                            className="absolute top-5 right-5 p-2 bg-zinc-200/50 hover:bg-zinc-200 rounded-full text-zinc-600 transition-colors"
+                            className="absolute top-5 right-5 p-2 bg-[var(--glass-bg)] hover:bg-[var(--glass-border)] rounded-full text-[var(--text-secondary)] transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>

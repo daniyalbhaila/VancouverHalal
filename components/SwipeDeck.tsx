@@ -253,7 +253,7 @@ export default function SwipeDeck({ restaurants }: SwipeDeckProps) {
     return (
         <div className="fixed inset-0 pt-14 pb-28 flex flex-col items-center overflow-hidden">
             {/* Dynamic Background */}
-            <div className="absolute inset-0 z-0 bg-zinc-50 transition-colors duration-500" />
+            <div className="absolute inset-0 z-0 bg-[var(--bg-base)] transition-colors duration-500" />
 
             {/* Card Area - Takes remaining space */}
             <div className="relative flex-1 w-full max-w-md px-4 mt-2 perspective-1000 z-10 flex items-center">
