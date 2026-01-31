@@ -1,36 +1,23 @@
 'use client';
 
 import { Star, MapPin, Navigation } from 'lucide-react';
-import { cn, getVibeGradient } from '@/lib/utils';
 import type { RestaurantCard as RestaurantType } from '@/lib/data';
+import { RestaurantImage } from '@/components/RestaurantImage';
 
 export function RestaurantCard({ data }: { data: RestaurantType & { distance?: number } }) {
-    // Gradient helper for missing images
-    const renderImageFallback = () => {
-        const gradient = getVibeGradient(data.categories[0] || data.name);
-        return (
-            <div className={cn("w-full h-full relative overflow-hidden", gradient)}>
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.7)_1px,transparent_0)] bg-[size:24px_24px]" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                    <span className="text-8xl font-black text-white mix-blend-overlay rotate-12">{data.name[0]}</span>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div
             className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform"
         >
             {/* Full Background Media */}
             <div className="absolute inset-0">
-                {data.image ? (
-                    <img
-                        src={data.image}
-                        alt={data.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                ) : renderImageFallback()}
+                <RestaurantImage
+                    src={data.image}
+                    alt={data.name}
+                    seed={data.categories[0] || data.name}
+                    className="transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 500px"
+                />
 
                 {/* Gradient Overlays for Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90" />
