@@ -104,11 +104,22 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     return (
         <div className="min-h-screen bg-[var(--bg-base)] relative transition-colors">
+            {/* Header / Title Section */}
+            <div className="px-5 pt-8 pb-4 bg-[var(--bg-base)]">
+                <div className="flex items-center justify-between mb-1">
+                    <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] font-manrope">
+                        Vancouver Halal
+                    </h1>
+                </div>
+                <p className="text-sm font-medium text-[var(--text-secondary)] font-newsreader italic">
+                    Top rated dining & hidden gems
+                </p>
+            </div>
+
             <div className={cn(
-                "sticky top-14 z-30",
-                "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-lg",
-                "border-b border-[var(--glass-border)]",
-                "transform-gpu transition-colors"
+                "sticky top-0 z-30",
+                "bg-[var(--glass-bg)] backdrop-blur-xl shadow-sm border-b border-[var(--glass-border)]",
+                "transform-gpu transition-all duration-300"
             )}>
                 <CategoryFilter
                     selected={selectedCategory}
@@ -239,6 +250,6 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             </div>
 
 
-        </div>
+        </div >
     );
 }

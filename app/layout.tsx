@@ -35,17 +35,7 @@ export default function RootLayout({
         newsreader.variable
       )}>
         <Providers>
-          {/* Liquid Glass Header */}
-          <header className={cn(
-            "fixed top-0 left-0 right-0 h-14 z-50 flex items-center justify-center",
-            "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-lg",
-            "border-b border-[var(--glass-border)]",
-            "transform-gpu transition-colors"
-          )}>
-            <h1 className="text-sm font-bold tracking-tight">Vancouver Halal Restaurants</h1>
-          </header>
-
-          <main className="pt-14 pb-28">
+          <main className="pb-28">
             {children}
           </main>
 
