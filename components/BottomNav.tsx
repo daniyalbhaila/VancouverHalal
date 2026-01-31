@@ -1,15 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Compass, Flame, Map, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function BottomNav() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const router = useRouter();
     const isMapView = searchParams.get('view') === 'map';
+
+    useEffect(() => {
+        router.prefetch('/');
+        router.prefetch('/?view=map');
+        router.prefetch('/swipe');
+        router.prefetch('/saved');
+    }, [router]);
 
     const tabs = [
         { name: 'Explore', href: '/', icon: Compass, isActive: pathname === '/' && !isMapView },
