@@ -99,7 +99,14 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     return (
         <div className="min-h-screen bg-[var(--bg-base)] relative transition-colors">
             {/* Header / Title Section */}
-            <div className="px-5 pt-8 pb-4 bg-[var(--bg-base)]">
+            <div
+                className={cn(
+                    "bg-[var(--bg-base)] px-5 pt-8 pb-4",
+                    "origin-top transform-gpu transition-all duration-200 ease-out",
+                    "max-h-40 opacity-100 translate-y-0",
+                    view === 'map' && "max-h-0 opacity-0 -translate-y-2 pt-0 pb-0 overflow-hidden pointer-events-none"
+                )}
+            >
                 <div className="flex items-center justify-between mb-1">
                     <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] font-manrope">
                         Vancouver Halal
@@ -240,7 +247,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
             {/* Map View (Only mounted when visible) */}
             {view === 'map' && (
-                <div className="fixed inset-0 top-[110px] z-20 bg-zinc-50">
+                <div className="fixed inset-0 top-0 z-20 bg-zinc-50">
                     <MapSkeleton />
                     <MapComponent restaurants={filteredRestaurants} isVisible />
                 </div>
