@@ -50,7 +50,7 @@ export default function SwipePage() {
             <div className="absolute top-0 left-0 right-0 z-10 p-4 flex justify-between items-center bg-gradient-to-b from-white/80 to-transparent pt-safe">
                 <div>
                     <h1 className="text-xl font-bold text-zinc-900 tracking-tight">Discover</h1>
-                    <p className="text-xs text-zinc-500 font-medium">Halal spots needed you</p>
+                    <p className="text-xs text-zinc-500 font-medium">Halal spots near you</p>
                 </div>
             </div>
 
