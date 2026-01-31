@@ -21,6 +21,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
     const { location } = useLocation();
     const hasCentered = useRef(false);
     const [userMarkerScale, setUserMarkerScale] = useState(1);
+    const [showUserHalo, setShowUserHalo] = useState(false);
 
     // Default to Vancouver center
     const defaultCenter = { lng: -123.1207, lat: 49.2827 };
@@ -54,8 +55,9 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
             const updateScale = () => {
                 const zoom = map.getZoom();
                 const scale =
-                    zoom <= 11 ? 2 : zoom <= 12.5 ? 1.6 : zoom <= 14 ? 1.2 : 1;
+                    zoom <= 11 ? 1.4 : zoom <= 12.5 ? 1.25 : zoom <= 14 ? 1.1 : 1;
                 setUserMarkerScale(scale);
+                setShowUserHalo(zoom <= 13);
             };
 
             updateScale();
@@ -127,11 +129,13 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                     >
                         <MarkerContent className="z-50">
                             <div
-                                className="relative flex h-6 w-6 origin-center items-center justify-center"
+                                className="relative flex h-5 w-5 origin-center items-center justify-center"
                                 style={{ transform: `scale(${userMarkerScale})` }}
                             >
-                                <div className="absolute h-12 w-12 rounded-full bg-blue-500/25 ring-2 ring-white/70" />
-                                <div className="absolute h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
+                                {showUserHalo && (
+                                    <div className="absolute h-10 w-10 rounded-full bg-blue-500/20 ring-1 ring-white/60" />
+                                )}
+                                <div className="absolute h-5 w-5 rounded-full border-2 border-white bg-blue-500 shadow-md" />
                             </div>
                         </MarkerContent>
                     </MapMarker>
