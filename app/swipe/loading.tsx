@@ -1,16 +1,14 @@
-import { SwipeCardSkeleton } from '@/components/SwipeCardSkeleton';
-
 export default function Loading() {
   return (
-    <div className="fixed inset-0 pt-14 pb-28 flex flex-col items-center overflow-hidden bg-zinc-50">
-      <div className="relative flex-1 w-full max-w-md px-4 mt-2 flex items-center">
-        <div className="relative w-full h-[65vh] max-h-[500px]">
-          <SwipeCardSkeleton />
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-6">
+      <div className="w-full max-w-sm animate-pulse">
+        <div className="h-8 w-40 bg-zinc-200 rounded-md mb-6" />
+        <div className="h-[360px] w-full bg-zinc-200 rounded-3xl shadow-sm" />
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-zinc-200" />
+          <div className="h-12 w-12 rounded-full bg-zinc-200" />
+          <div className="h-12 w-12 rounded-full bg-zinc-200" />
         </div>
-      </div>
-      <div className="flex items-center gap-8 z-30 py-4">
-        <div className="w-16 h-16 bg-zinc-200 rounded-full animate-pulse" />
-        <div className="w-20 h-20 bg-zinc-200 rounded-full animate-pulse" />
       </div>
     </div>
   );

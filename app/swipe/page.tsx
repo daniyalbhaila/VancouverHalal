@@ -1,5 +1,5 @@
 import SwipeClient from '@/components/SwipeClient';
-import { getDiscoveryRestaurants } from '@/lib/data';
+import { getCachedDiscoveryRestaurants } from '@/lib/cached-restaurants';
 
 export const revalidate = 3600;
 
@@ -11,7 +11,7 @@ function shuffleRestaurants<T>(items: T[]) {
 }
 
 export default async function SwipePage() {
-    const restaurants = await getDiscoveryRestaurants();
+    const restaurants = await getCachedDiscoveryRestaurants();
     const shuffled = shuffleRestaurants(restaurants);
 
     return <SwipeClient restaurants={shuffled} />;

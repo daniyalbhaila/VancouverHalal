@@ -27,31 +27,119 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const searchParams = useSearchParams();
 
     const { location, loading: locationLoading } = useLocation();
-    const [view, setView] = useState<'list' | 'map'>('list');
+    const [view, setView] = useState<'list' | 'map'>(() => {
+        if (typeof window === 'undefined') {
+            return 'list';
+        }
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached) as { view?: 'list' | 'map' };
+                return parsed.view ?? 'list';
+            } catch {
+                return 'list';
+            }
+        }
+        return 'list';
+    });
 
     // Sync view with URL param on mount and updates
     useEffect(() => {
         const viewParam = searchParams.get('view');
-        if (viewParam === 'map') {
-            setView('map');
-        } else {
-            setView('list');
+        if (viewParam) {
+            if (viewParam === 'map') {
+                setView('map');
+            } else {
+                setView('list');
+            }
         }
     }, [searchParams]);
 
     // Filters
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [showOpenOnly, setShowOpenOnly] = useState(false);
-    const [radius, setRadius] = useState(20); // Default 20km
-    const [sortBy, setSortBy] = useState<'recommended' | 'distance' | 'rating'>('recommended'); // Default to recommended
-    const [showFilters, setShowFilters] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(() => {
+        if (typeof window === 'undefined') return "";
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (!cached) return "";
+        try {
+            const parsed = JSON.parse(cached) as { selectedCategory?: string };
+            return parsed.selectedCategory ?? "";
+        } catch {
+            return "";
+        }
+    });
+    const [showOpenOnly, setShowOpenOnly] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (!cached) return false;
+        try {
+            const parsed = JSON.parse(cached) as { showOpenOnly?: boolean };
+            return parsed.showOpenOnly ?? false;
+        } catch {
+            return false;
+        }
+    });
+    const [radius, setRadius] = useState(() => {
+        if (typeof window === 'undefined') return 20;
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (!cached) return 20;
+        try {
+            const parsed = JSON.parse(cached) as { radius?: number };
+            return parsed.radius ?? 20;
+        } catch {
+            return 20;
+        }
+    }); // Default 20km
+    const [sortBy, setSortBy] = useState<'recommended' | 'distance' | 'rating'>(() => {
+        if (typeof window === 'undefined') return 'recommended';
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (!cached) return 'recommended';
+        try {
+            const parsed = JSON.parse(cached) as { sortBy?: 'recommended' | 'distance' | 'rating' };
+            return parsed.sortBy ?? 'recommended';
+        } catch {
+            return 'recommended';
+        }
+    }); // Default to recommended
+    const [showFilters, setShowFilters] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        const cached = sessionStorage.getItem('home-state-v1');
+        if (!cached) return false;
+        try {
+            const parsed = JSON.parse(cached) as { showFilters?: boolean };
+            return parsed.showFilters ?? false;
+        } catch {
+            return false;
+        }
+    });
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const nextState = {
+            view,
+            selectedCategory,
+            showOpenOnly,
+            radius,
+            sortBy,
+            showFilters,
+        };
+        sessionStorage.setItem('home-state-v1', JSON.stringify(nextState));
+    }, [view, selectedCategory, showOpenOnly, radius, sortBy, showFilters]);
+
+    useEffect(() => {
+        import('@/components/Map');
+    }, []);
 
     // We no longer need an initial fetch effect because data is passed in!
     // But we still need to derive distance when location becomes available.
 
+    const restaurantsWithDistance = useMemo(
+        () => addDistanceToRestaurants(initialRestaurants, location),
+        [initialRestaurants, location]
+    );
+
     // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
     const filteredRestaurants = useMemo(() => {
-        let result: RestaurantWithDistance[] = addDistanceToRestaurants(initialRestaurants, location);
+        let result: RestaurantWithDistance[] = [...restaurantsWithDistance];
 
         // 0. Calculate Distance if location is available
         // 1. Filter by Category
@@ -92,7 +180,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         });
 
         return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location]);
+    }, [selectedCategory, showOpenOnly, radius, sortBy, location, restaurantsWithDistance]);
 
 
 
@@ -246,13 +334,16 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 )}
             </div>
 
-            {/* Map View (Only mounted when visible) */}
-            {view === 'map' && (
-                <div className="fixed inset-0 top-0 z-20 bg-zinc-50">
-                    <MapSkeleton />
-                    <MapComponent restaurants={filteredRestaurants} isVisible />
-                </div>
-            )}
+            {/* Map View (kept mounted for instant switching) */}
+            <div
+                className={cn(
+                    "fixed inset-0 top-0 z-20 bg-zinc-50 transition-opacity duration-200",
+                    view === 'map' ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                )}
+                aria-hidden={view !== 'map'}
+            >
+                <MapComponent restaurants={filteredRestaurants} isVisible={view === 'map'} />
+            </div>
 
 
         </div >
