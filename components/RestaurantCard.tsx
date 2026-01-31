@@ -30,7 +30,7 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                         <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
                     </div>
                 ) : (
-                    <div className="px-2 py-0.5 bg-zinc-900/60 backdrop-blur-md rounded-full shadow-sm border border-white/10">
+                    <div className="px-2 py-0.5 bg-red-900/70 backdrop-blur-md rounded-full shadow-sm border border-red-200/10 flex items-center">
                         <span className="text-[10px] font-bold text-white uppercase tracking-wider">Closed</span>
                     </div>
                 )}
