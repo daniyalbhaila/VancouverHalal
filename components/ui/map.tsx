@@ -664,40 +664,57 @@ function MapControls({
   const [waitingForLocation, setWaitingForLocation] = useState(false);
 
   const handleZoomIn = useCallback(() => {
-    map?.zoomTo(map.getZoom() + 1, { duration: 300 });
+    if (!map) return;
+    map.stop();
+    map.easeTo({ zoom: map.getZoom() + 1, duration: 200 });
   }, [map]);
 
   const handleZoomOut = useCallback(() => {
-    map?.zoomTo(map.getZoom() - 1, { duration: 300 });
+    if (!map) return;
+    map.stop();
+    map.easeTo({ zoom: map.getZoom() - 1, duration: 200 });
   }, [map]);
 
   const handleResetBearing = useCallback(() => {
-    map?.resetNorthPitch({ duration: 300 });
+    if (!map) return;
+    map.stop();
+    map.easeTo({ bearing: 0, pitch: 0, duration: 200 });
   }, [map]);
 
   const handleLocate = useCallback(() => {
     setWaitingForLocation(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords = {
-            longitude: pos.coords.longitude,
-            latitude: pos.coords.latitude,
-          };
-          map?.flyTo({
-            center: [coords.longitude, coords.latitude],
-            zoom: 14,
-            duration: 1500,
-          });
-          onLocate?.(coords);
-          setWaitingForLocation(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setWaitingForLocation(false);
-        }
-      );
+    if (!("geolocation" in navigator)) {
+      console.warn("Geolocation is not available in this browser.");
+      setWaitingForLocation(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = {
+          longitude: pos.coords.longitude,
+          latitude: pos.coords.latitude,
+        };
+        map?.stop();
+        map?.easeTo({
+          center: [coords.longitude, coords.latitude],
+          zoom: 14,
+          duration: 600,
+          essential: true,
+        });
+        onLocate?.(coords);
+        setWaitingForLocation(false);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        setWaitingForLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   }, [map, onLocate]);
 
   const handleFullscreen = useCallback(() => {

@@ -78,7 +78,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                 {/* Remove MapEvents since we rely on native popup behavior now */}
                 {/* <MapEvents onClick={handleMapClick} /> */}
 
-                <MapControls position="top-right" showCompass={false} showZoom={false} showLocate={true} />
+                <MapControls position="bottom-right" showCompass showZoom showLocate />
 
                 {/* User Location Marker */}
                 {location && (
