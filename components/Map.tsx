@@ -170,9 +170,9 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         latitude={location.lat}
                     >
                         <MarkerContent className="z-50">
-                            <div className="relative flex h-7 w-7 items-center justify-center">
-                                <div className="absolute h-14 w-14 rounded-full bg-blue-500/20 ring-2 ring-white/80 shadow-[0_0_0_8px_rgba(59,130,246,0.18)]" />
-                                <div className="absolute h-7 w-7 rounded-full border-[2.5px] border-white bg-blue-500 shadow-lg" />
+                            <div className="relative flex h-6 w-6 items-center justify-center">
+                                <div className="absolute h-12 w-12 rounded-full bg-blue-500/20 ring-2 ring-white/80 shadow-[0_0_0_6px_rgba(59,130,246,0.18)]" />
+                                <div className="absolute h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
                             </div>
                         </MarkerContent>
                     </MapMarker>
