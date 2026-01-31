@@ -102,8 +102,9 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             <div
                 className={cn(
                     "bg-[var(--bg-base)] px-5 pt-8 pb-4",
-                    "origin-top transform-gpu transition-all duration-200 ease-out",
+                    "origin-top transform-gpu transition-[max-height,opacity,transform,padding] duration-200 ease-out",
                     "max-h-40 opacity-100 translate-y-0",
+                    "motion-reduce:transition-none",
                     view === 'map' && "max-h-0 opacity-0 -translate-y-2 pt-0 pb-0 overflow-hidden pointer-events-none"
                 )}
             >
