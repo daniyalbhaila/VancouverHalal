@@ -3,10 +3,24 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
 import { RestaurantCard as CardComponent } from '@/components/RestaurantCard';
-import { X, Navigation } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Navigation, MapPin, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
+import { Map as MapComponent, MapControls, MapMarker, MarkerContent, MarkerLabel, MarkerPopup } from '@/components/ui/map';
+
+// Helper component to handle map events
+function MapEvents({ onClick }: { onClick: () => void }) {
+    const { map } = useMap();
+    useEffect(() => {
+        if (!map) return;
+        map.on('click', onClick);
+        return () => {
+            map.off('click', onClick);
+        };
+    }, [map, onClick]);
+    return null;
+}
 
 interface MapProps {
     restaurants: RestaurantCard[];
@@ -14,28 +28,19 @@ interface MapProps {
 }
 
 export default function Map({ restaurants, isVisible = true }: MapProps) {
-    const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<maplibregl.Map | null>(null);
-    const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantCard | null>(null);
+    const mapRef = useRef<maplibregl.Map>(null); // Ref to the map instance
     const { location } = useLocation();
     const hasCentered = useRef(false);
-    const [isDark, setIsDark] = useState(false);
 
-    // Detect dark mode preference - DISABLED FOR NOW
-    // useEffect(() => {
-    //     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    //     setIsDark(mediaQuery.matches);
-    //     const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    //     mediaQuery.addEventListener('change', handler);
-    //     return () => mediaQuery.removeEventListener('change', handler);
-    // }, []);
+    // Default to Vancouver center
+    const defaultCenter = { lng: -123.1207, lat: 49.2827 };
 
     // Resize map when visibility changes
     useEffect(() => {
-        if (isVisible && map.current) {
+        if (isVisible && mapRef.current) {
             // Give it a tick to paint the display:block
             setTimeout(() => {
-                map.current?.resize();
+                mapRef.current?.resize();
 
                 // If we haven't centered properly (or if we need to re-center because it was hidden)
                 if (location && restaurants.length > 0) {
@@ -46,7 +51,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
     }, [isVisible, location, restaurants]);
 
     const fitMapToBounds = (loc: { lat: number, lng: number }, rests: RestaurantCard[]) => {
-        if (!map.current) return;
+        if (!mapRef.current) return;
 
         // Find 10 closest restaurants
         const sortedByDist = [...rests]
@@ -60,7 +65,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
         sortedByDist.forEach(r => bounds.extend([r.location.lng, r.location.lat]));
 
         try {
-            map.current.fitBounds(bounds, {
+            mapRef.current.fitBounds(bounds, {
                 padding: { top: 100, bottom: 300, left: 50, right: 50 },
                 maxZoom: 13,
                 duration: 2000,
@@ -70,112 +75,116 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
         } catch (e) {
             // map might not be ready
         }
-
-        // Update user marker
-        const el = document.createElement('div');
-        el.className = 'w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg pulse-ring user-marker';
-        const existing = document.querySelector('.user-marker');
-        if (existing) existing.remove();
-
-        new maplibregl.Marker({ element: el })
-            .setLngLat([loc.lng, loc.lat])
-            .addTo(map.current);
     };
-
-    useEffect(() => {
-        if (map.current || !mapContainer.current) return;
-
-        // Default to Vancouver center
-        const defaultCenter = { lng: -123.1207, lat: 49.2827 };
-
-        map.current = new maplibregl.Map({
-            container: mapContainer.current,
-            style: isDark
-                ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-                : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
-            center: location ? [location.lng, location.lat] : [defaultCenter.lng, defaultCenter.lat],
-            zoom: location ? 14 : 12,
-            attributionControl: false,
-        });
-
-        map.current.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-        // Initialize Geolocation Control (but don't trigger automatically to avoid double-zoom)
-        const geolocate = new maplibregl.GeolocateControl({
-            positionOptions: { enableHighAccuracy: true },
-            trackUserLocation: true,
-            showUserLocation: true
-        });
-        map.current.addControl(geolocate, 'top-right');
-
-        return () => {
-            map.current?.remove();
-            map.current = null;
-        }
-    }, []);
-
-
-    // Add markers
-    useEffect(() => {
-        if (!map.current) return;
-
-        restaurants.forEach((restaurant) => {
-            const el = document.createElement('div');
-            el.className = 'w-10 h-10 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform z-10 ' + (isDark ? 'bg-white text-zinc-900' : 'bg-zinc-900 text-white');
-            el.innerText = restaurant.rating.toFixed(1);
-
-            // Add click listener to marker
-            el.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent map click
-                // Fly to location
-                map.current?.flyTo({
-                    center: [restaurant.location.lng, restaurant.location.lat],
-                    zoom: 14,
-                    padding: { bottom: 300 } // Offset for the drawer
-                });
-                setSelectedRestaurant(restaurant);
-            });
-
-            new maplibregl.Marker({ element: el })
-                .setLngLat([restaurant.location.lng, restaurant.location.lat])
-                .addTo(map.current!);
-        });
-
-        // Close drawer on map click
-        map.current.on('click', () => {
-            setSelectedRestaurant(null);
-        });
-
-    }, [restaurants]);
 
     return (
         <div className="w-full h-full relative">
-            <div ref={mapContainer} className="w-full h-full" />
+            <MapComponent
+                ref={mapRef}
+                center={location ? [location.lng, location.lat] : [defaultCenter.lng, defaultCenter.lat]}
+                zoom={location ? 14 : 12}
+                theme="light"
+                attributionControl={false}
+            >
+                {/* Remove MapEvents since we rely on native popup behavior now */}
+                {/* <MapEvents onClick={handleMapClick} /> */}
 
-            {/* Restaurant Drawer */}
-            <AnimatePresence>
-                {selectedRestaurant && (
-                    <motion.div
-                        initial={{ y: "100%" }}
-                        animate={{ y: 0 }}
-                        exit={{ y: "100%" }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-24 rounded-t-[2.5rem] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[0_-10px_40px_var(--glass-shadow)] border-t border-[var(--glass-border)] transition-colors"
+                <MapControls position="top-right" showCompass={false} showZoom={false} showLocate={true} />
+
+                {/* User Location Marker */}
+                {location && (
+                    <MapMarker
+                        longitude={location.lng}
+                        latitude={location.lat}
                     >
-                        {/* Drag Handle */}
-                        <div className="w-12 h-1.5 bg-[var(--text-secondary)] rounded-full mx-auto mb-4 opacity-50" />
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setSelectedRestaurant(null)}
-                            className="absolute top-5 right-5 p-2 bg-[var(--glass-bg)] hover:bg-[var(--glass-border)] rounded-full text-[var(--text-secondary)] transition-colors"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-
-                        <CardComponent data={selectedRestaurant} />
-                    </motion.div>
+                        <MarkerContent />
+                    </MapMarker>
                 )}
-            </AnimatePresence>
+
+                {/* Restaurant Markers */}
+                {restaurants.map((restaurant) => (
+                    <MapMarker
+                        key={restaurant.id}
+                        longitude={restaurant.location.lng}
+                        latitude={restaurant.location.lat}
+                        className="cursor-pointer hover:z-50"
+                    >
+                        {/* 1. Dot with Rating */}
+                        <MarkerContent>
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white border-2 border-white shadow-md transition-transform hover:scale-110">
+                                <span className="text-[10px] font-bold">
+                                    {restaurant.rating.toFixed(1)}
+                                </span>
+                            </div>
+                        </MarkerContent>
+
+                        {/* 2. Label below marker */}
+                        <MarkerLabel position="bottom">
+                            <span className="text-xs font-bold text-zinc-800 drop-shadow-sm bg-white/50 backdrop-blur-sm px-1 rounded-sm">
+                                {restaurant.name}
+                            </span>
+                        </MarkerLabel>
+
+                        {/* 3. Popup Card */}
+                        <MarkerPopup className="p-0 min-w-[250px] max-w-[300px] border-none shadow-xl rounded-2xl">
+                            <div className="flex flex-col overflow-hidden rounded-2xl">
+                                {/* Image Header */}
+                                <div className="h-32 w-full bg-zinc-100 relative">
+                                    {restaurant.image ? (
+                                        <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-rose-100 to-orange-100 flex items-center justify-center">
+                                            <span className="text-4xl text-rose-500 opacity-20 font-bold">{restaurant.name[0]}</span>
+                                        </div>
+                                    )}
+                                    {/* Category Badge */}
+                                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase">
+                                        {restaurant.categories[0]}
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-4 bg-white">
+                                    <h3 className="font-bold text-lg text-zinc-900 leading-tight mb-1">{restaurant.name}</h3>
+
+                                    <div className="flex items-center gap-1.5 mb-3">
+                                        <div className="flex text-yellow-500">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={cn("w-3 h-3 fill-current", i < Math.floor(restaurant.rating) ? "text-yellow-500" : "text-zinc-300")}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-xs text-zinc-500">({restaurant.reviews})</span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between mt-2">
+                                        <div className="text-xs font-medium">
+                                            {restaurant.isOpenNow ? (
+                                                <span className="text-emerald-600">Open Now</span>
+                                            ) : (
+                                                <span className="text-rose-600">Closed</span>
+                                            )}
+                                        </div>
+
+                                        <a
+                                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + " " + restaurant.address)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-1.5 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-zinc-800 transition-colors flex items-center gap-1.5"
+                                        >
+                                            <Navigation className="w-3 h-3" />
+                                            Directions
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </MarkerPopup>
+                    </MapMarker>
+                ))}
+
+            </MapComponent>
         </div>
     );
 }
