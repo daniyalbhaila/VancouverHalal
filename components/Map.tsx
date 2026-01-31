@@ -20,6 +20,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
     const mapRef = useRef<maplibregl.Map>(null); // Ref to the map instance
     const { location } = useLocation();
     const hasCentered = useRef(false);
+    const [userMarkerScale, setUserMarkerScale] = useState(1);
 
     // Default to Vancouver center
     const defaultCenter = { lng: -123.1207, lat: 49.2827 };
@@ -38,6 +39,44 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
             }, 100);
         }
     }, [isVisible, location, restaurants]);
+
+    useEffect(() => {
+        let cleanup: (() => void) | null = null;
+        let frameId: number | null = null;
+
+        const attachZoomListener = () => {
+            if (!mapRef.current) {
+                frameId = requestAnimationFrame(attachZoomListener);
+                return;
+            }
+
+            const map = mapRef.current;
+            const updateScale = () => {
+                const zoom = map.getZoom();
+                const scale =
+                    zoom <= 11 ? 2 : zoom <= 12.5 ? 1.6 : zoom <= 14 ? 1.2 : 1;
+                setUserMarkerScale(scale);
+            };
+
+            updateScale();
+            map.on("zoom", updateScale);
+            map.on("load", updateScale);
+
+            cleanup = () => {
+                map.off("zoom", updateScale);
+                map.off("load", updateScale);
+            };
+        };
+
+        attachZoomListener();
+
+        return () => {
+            if (frameId) {
+                cancelAnimationFrame(frameId);
+            }
+            cleanup?.();
+        };
+    }, []);
 
     const fitMapToBounds = (loc: { lat: number, lng: number }, rests: RestaurantCard[]) => {
         if (!mapRef.current) return;
@@ -87,8 +126,11 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         latitude={location.lat}
                     >
                         <MarkerContent className="z-50">
-                            <div className="relative flex h-6 w-6 items-center justify-center">
-                                <div className="absolute h-10 w-10 rounded-full bg-blue-500/25" />
+                            <div
+                                className="relative flex h-6 w-6 origin-center items-center justify-center"
+                                style={{ transform: `scale(${userMarkerScale})` }}
+                            >
+                                <div className="absolute h-12 w-12 rounded-full bg-blue-500/25 ring-2 ring-white/70" />
                                 <div className="absolute h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
                             </div>
                         </MarkerContent>
