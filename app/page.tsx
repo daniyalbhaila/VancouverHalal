@@ -4,7 +4,7 @@ import HomeClient from '@/components/HomeClient';
 import { Loader2 } from 'lucide-react';
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Top Rated Halal Restaurants in Vancouver | 2024 Guide',
