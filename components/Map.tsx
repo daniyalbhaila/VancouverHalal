@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
@@ -86,7 +86,12 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         longitude={location.lng}
                         latitude={location.lat}
                     >
-                        <MarkerContent />
+                        <MarkerContent className="z-50">
+                            <div className="relative flex h-6 w-6 items-center justify-center">
+                                <div className="absolute h-12 w-12 rounded-full bg-blue-500/20 ring-2 ring-white/70 shadow-[0_0_0_6px_rgba(59,130,246,0.15)]" />
+                                <div className="absolute h-6 w-6 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
+                            </div>
+                        </MarkerContent>
                     </MapMarker>
                 )}
 
