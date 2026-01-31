@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { Manrope, Newsreader } from "next/font/google";
 import "./globals.css";
@@ -42,7 +43,9 @@ export default function RootLayout({
             {children}
           </main>
 
-          <BottomNav />
+          <Suspense fallback={null}>
+            <BottomNav />
+          </Suspense>
         </Providers>
       </body>
     </html>
