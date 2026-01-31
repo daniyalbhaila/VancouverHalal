@@ -27,7 +27,7 @@ export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen 
     const scrollRef = useRef<HTMLDivElement>(null);
 
     return (
-        <div className="sticky top-14 left-0 right-0 z-30 bg-white/80 backdrop-blur-md border-b border-zinc-100 py-3">
+        <div className="py-3">
             <div
                 ref={scrollRef}
                 className="flex gap-2 overflow-x-auto no-scrollbar px-4 mask-gradient-right items-center"

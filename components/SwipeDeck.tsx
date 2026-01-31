@@ -251,46 +251,49 @@ export default function SwipeDeck({ restaurants }: SwipeDeckProps) {
     }
 
     return (
-        <div className="fixed inset-0 pt-16 pb-24 flex flex-col items-center justify-center overflow-hidden">
-            {/* Dynamic Background with manual calculation or simplified */}
+        <div className="fixed inset-0 pt-14 pb-28 flex flex-col items-center overflow-hidden">
+            {/* Dynamic Background */}
             <div className="absolute inset-0 z-0 bg-zinc-50 transition-colors duration-500" />
 
-            <div className="relative w-full max-w-md h-[55vh] mt-4 px-4 perspective-1000 z-10">
-                {/* Background Card */}
-                {nextIndex < cards.length && (
-                    <div className="absolute inset-x-4 inset-y-0 z-0">
-                        <motion.div
-                            key={cards[nextIndex].id}
-                            variants={backVariants}
-                            initial="center"
-                            animate="center"
-                            className="w-full h-full"
-                        >
-                            <div className="relative w-full h-full bg-zinc-900 rounded-[2.5rem] shadow-2xl overflow-hidden select-none ring-1 ring-white/10">
-                                <CardContent restaurant={cards[nextIndex]} />
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
+            {/* Card Area - Takes remaining space */}
+            <div className="relative flex-1 w-full max-w-md px-4 mt-2 perspective-1000 z-10 flex items-center">
+                <div className="relative w-full h-[65vh] max-h-[500px]">
+                    {/* Background Card */}
+                    {nextIndex < cards.length && (
+                        <div className="absolute inset-0 z-0">
+                            <motion.div
+                                key={cards[nextIndex].id}
+                                variants={backVariants}
+                                initial="center"
+                                animate="center"
+                                className="w-full h-full"
+                            >
+                                <div className="relative w-full h-full bg-zinc-900 rounded-[2.5rem] shadow-2xl overflow-hidden select-none ring-1 ring-white/10">
+                                    <CardContent restaurant={cards[nextIndex]} />
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
 
-                {/* Active Card */}
-                <AnimatePresence custom={direction} mode="popLayout">
-                    <SwipeableCard
-                        key={cards[activeIndex].id}
-                        restaurant={cards[activeIndex]}
-                        custom={direction}
-                        onSwipe={swipe}
-                    />
-                </AnimatePresence>
+                    {/* Active Card */}
+                    <AnimatePresence custom={direction} mode="popLayout">
+                        <SwipeableCard
+                            key={cards[activeIndex].id}
+                            restaurant={cards[activeIndex]}
+                            custom={direction}
+                            onSwipe={swipe}
+                        />
+                    </AnimatePresence>
+                </div>
             </div>
 
-            {/* Controls */}
-            <div className="absolute bottom-24 flex items-center gap-8 z-30">
+            {/* Controls - Fixed at bottom, own space */}
+            <div className="flex items-center gap-8 z-30 py-4">
                 <button
                     onClick={() => swipe(-1)}
-                    className="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-rose-400 flex items-center justify-center hover:bg-white hover:scale-110 active:scale-95 transition-all shadow-2xl cursor-pointer"
+                    className="w-16 h-16 bg-white rounded-full shadow-lg text-rose-400 flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer border border-zinc-100"
                 >
-                    <X className="w-8 h-8" strokeWidth={3} />
+                    <X className="w-7 h-7" strokeWidth={2.5} />
                 </button>
                 <button
                     onClick={() => swipe(1)}

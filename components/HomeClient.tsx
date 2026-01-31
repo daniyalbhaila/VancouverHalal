@@ -104,7 +104,12 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     return (
         <div className="min-h-screen bg-zinc-50 relative">
-            <div className="sticky top-14 z-30 bg-white/90 backdrop-blur-md border-b border-zinc-100 shadow-sm">
+            <div className={cn(
+                "sticky top-14 z-30",
+                "bg-white/50 backdrop-blur-2xl shadow-lg shadow-zinc-900/5",
+                "border-b border-white/50 ring-1 ring-zinc-900/5",
+                "transform-gpu"
+            )}>
                 <CategoryFilter
                     selected={selectedCategory}
                     onSelect={setSelectedCategory}
@@ -233,29 +238,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 <MapComponent restaurants={filteredRestaurants} isVisible={view === 'map'} />
             </div>
 
-            {/* Floating Toggle */}
-            <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40">
-                <button
-                    onClick={() => {
-                        const newView = view === 'list' ? 'map' : 'list';
-                        if (newView === 'map') router.push('/?view=map');
-                        else router.push('/');
-                    }}
-                    className="group flex items-center gap-2 pl-4 pr-5 py-3 bg-zinc-900/90 backdrop-blur-md text-white rounded-full shadow-xl shadow-zinc-900/20 hover:scale-105 active:scale-95 transition-all border border-zinc-800/50"
-                >
-                    {view === 'list' ? (
-                        <>
-                            <Map className="w-5 h-5 text-emerald-400" />
-                            <span className="font-bold text-sm tracking-wide">Map View</span>
-                        </>
-                    ) : (
-                        <>
-                            <AlignJustify className="w-5 h-5 text-emerald-400" />
-                            <span className="font-bold text-sm tracking-wide">List View</span>
-                        </>
-                    )}
-                </button>
-            </div>
+
         </div>
     );
 }

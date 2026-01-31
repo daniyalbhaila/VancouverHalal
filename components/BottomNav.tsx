@@ -12,58 +12,51 @@ export default function BottomNav() {
     const isMapView = searchParams.get('view') === 'map';
 
     const tabs = [
-        {
-            name: 'Explore',
-            href: '/',
-            icon: Compass,
-            isActive: pathname === '/' && !isMapView
-        },
-        {
-            name: 'Swipe',
-            href: '/swipe',
-            icon: Flame,
-            isActive: pathname === '/swipe'
-        },
-        {
-            name: 'Map',
-            href: '/?view=map',
-            icon: Map,
-            isActive: isMapView
-        },
-        {
-            name: 'Saved',
-            href: '/saved',
-            icon: Heart,
-            isActive: pathname === '/saved'
-        },
+        { name: 'Explore', href: '/', icon: Compass, isActive: pathname === '/' && !isMapView },
+        { name: 'Swipe', href: '/swipe', icon: Flame, isActive: pathname === '/swipe' },
+        { name: 'Map', href: '/?view=map', icon: Map, isActive: isMapView },
+        { name: 'Saved', href: '/saved', icon: Heart, isActive: pathname === '/saved' },
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-t border-zinc-100 pb-safe pt-2">
-            <div className="flex justify-around items-center h-16 max-w-md mx-auto">
+        <nav className="fixed bottom-8 left-4 right-4 z-50 flex justify-center pb-safe">
+            <motion.div
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className={cn(
+                    "flex items-center justify-between px-6 py-3 w-full max-w-[320px]",
+                    "bg-white/70 backdrop-blur-2xl shadow-2xl shadow-zinc-900/10",
+                    "rounded-full border border-white/50 ring-1 ring-zinc-900/5",
+                    "transform-gpu" // Hardware accel for blur
+                )}
+            >
                 {tabs.map((tab) => (
                     <Link
                         key={tab.name}
                         href={tab.href}
-                        className={cn(
-                            "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300",
-                            tab.isActive ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-500"
-                        )}
+                        className="relative flex flex-col items-center justify-center w-12 h-12"
                     >
                         {tab.isActive && (
                             <motion.div
                                 layoutId="nav-pill"
-                                className="absolute -top-2 w-8 h-1 bg-zinc-900 rounded-full"
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="absolute inset-0 bg-white/50 rounded-full shadow-inner"
+                                style={{ backdropFilter: "blur(4px)" }}
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                             />
                         )}
-                        <tab.icon className={cn("w-6 h-6", tab.isActive && "stroke-[2.5px]")} />
-                        <span className={cn("text-[10px] font-bold tracking-tight", tab.isActive ? "opacity-100" : "opacity-0 translate-y-2")}>
-                            {tab.name}
+                        <span className="relative z-10">
+                            <tab.icon
+                                className={cn(
+                                    "w-6 h-6 transition-all duration-300",
+                                    tab.isActive
+                                        ? "text-zinc-900 stroke-[2.5px] scale-110 drop-shadow-sm"
+                                        : "text-zinc-400 hover:text-zinc-600"
+                                )}
+                            />
                         </span>
                     </Link>
                 ))}
-            </div>
+            </motion.div>
         </nav>
     );
 }
