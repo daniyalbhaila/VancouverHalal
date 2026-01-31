@@ -9,8 +9,8 @@ export function MapSkeleton() {
       <div className="absolute top-24 right-8 h-3 w-20 rounded-full bg-zinc-200/80 animate-pulse" />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative h-6 w-6">
-          <div className="absolute inset-0 rounded-full bg-emerald-400/40 animate-ping" />
-          <div className="absolute inset-1 rounded-full bg-emerald-400/70" />
+          <div className="absolute inset-0 rounded-full bg-blue-500/40 animate-ping" />
+          <div className="absolute inset-1 rounded-full bg-blue-500/70" />
         </div>
       </div>
       <div className="absolute bottom-24 left-16 h-10 w-24 rounded-full bg-zinc-200/70 animate-pulse" />
