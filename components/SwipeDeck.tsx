@@ -5,9 +5,10 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { RestaurantCard } from '@/lib/data';
 import { X, Heart, RotateCcw, MapPin, Star } from 'lucide-react';
 import { useLocation } from '@/hooks/useLocation';
-import { calculateDistance } from '@/lib/location';
-import { cn, getVibeGradient } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useFavorites } from '@/hooks/useFavorites';
+import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/restaurants';
+import { RestaurantImage } from '@/components/RestaurantImage';
 
 interface SwipeDeckProps {
     restaurants: RestaurantCard[];
@@ -117,27 +118,18 @@ const SwipeableCard = ({
 };
 
 // Extracted for cleanliness
-const CardContent = ({ restaurant }: { restaurant: RestaurantCard & { distance?: number | null } }) => {
-    // Gradient helper
-    const renderImageFallback = () => {
-        const gradient = getVibeGradient(restaurant.categories[0] || restaurant.name);
-        return (
-            <div className={cn("w-full h-full relative overflow-hidden", gradient)}>
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.7)_1px,transparent_0)] bg-[size:24px_24px]" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                    <span className="text-9xl font-black text-white mix-blend-overlay rotate-12">{restaurant.name[0]}</span>
-                </div>
-            </div>
-        );
-    };
-
+const CardContent = ({ restaurant }: { restaurant: RestaurantWithDistance }) => {
     return (
         <>
             {/* Full Background Media */}
             <div className="absolute inset-0">
-                {restaurant.image ? (
-                    <img src={restaurant.image} className="w-full h-full object-cover pointer-events-none" />
-                ) : renderImageFallback()}
+                <RestaurantImage
+                    src={restaurant.image}
+                    alt={restaurant.name}
+                    seed={restaurant.categories[0] || restaurant.name}
+                    className="pointer-events-none"
+                    sizes="(max-width: 768px) 100vw, 600px"
+                />
 
                 {/* Cinematic overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
@@ -203,10 +195,7 @@ export default function SwipeDeck({ restaurants }: SwipeDeckProps) {
     const { toggleFavorite } = useFavorites();
 
     const cards = useMemo(() => {
-        return restaurants.map(r => ({
-            ...r,
-            distance: location ? calculateDistance(location.lat, location.lng, r.location.lat, r.location.lng) : null
-        }));
+        return addDistanceToRestaurants(restaurants, location);
     }, [restaurants, location]);
 
     const [[currentIndex, direction], setPage] = useState([0, 0]);
