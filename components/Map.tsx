@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
-import { RestaurantCard as CardComponent } from '@/components/RestaurantCard';
-import { Star, Navigation, MapPin, X } from 'lucide-react';
+import { Star, Navigation, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
 import { Map as MapComponent, MapControls, MapMarker, MarkerContent, MarkerLabel, MarkerPopup } from '@/components/ui/map';
+import { RestaurantImage } from '@/components/RestaurantImage';
 
 
 
@@ -62,7 +62,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
             });
             hasCentered.current = true;
         } catch (e) {
-            // map might not be ready
+            console.warn('Map fitBounds failed', e);
         }
     };
 
@@ -119,13 +119,13 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                             <div className="flex flex-col overflow-hidden rounded-2xl">
                                 {/* Image Header */}
                                 <div className="h-32 w-full bg-zinc-100 relative">
-                                    {restaurant.image ? (
-                                        <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-rose-100 to-orange-100 flex items-center justify-center">
-                                            <span className="text-4xl text-rose-500 opacity-20 font-bold">{restaurant.name[0]}</span>
-                                        </div>
-                                    )}
+                                    <RestaurantImage
+                                        src={restaurant.image}
+                                        alt={restaurant.name}
+                                        seed={restaurant.categories[0] || restaurant.name}
+                                        sizes="300px"
+                                        fallbackTextClassName="text-4xl"
+                                    />
                                     {/* Category Badge */}
                                     <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase">
                                         {restaurant.categories[0]}
