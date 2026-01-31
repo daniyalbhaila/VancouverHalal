@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
-import { Star, Navigation, MapPin } from 'lucide-react';
+import { Star, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
@@ -79,16 +79,6 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                 {/* <MapEvents onClick={handleMapClick} /> */}
 
                 <MapControls position="bottom-right" showCompass showZoom showLocate />
-
-                {/* User Location Marker */}
-                {location && (
-                    <MapMarker
-                        longitude={location.lng}
-                        latitude={location.lat}
-                    >
-                        <MarkerContent />
-                    </MapMarker>
-                )}
 
                 {/* Restaurant Markers */}
                 {restaurants.map((restaurant) => (
@@ -172,6 +162,21 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                         </MarkerPopup>
                     </MapMarker>
                 ))}
+
+                {/* User Location Marker */}
+                {location && (
+                    <MapMarker
+                        longitude={location.lng}
+                        latitude={location.lat}
+                    >
+                        <MarkerContent className="z-50">
+                            <div className="relative flex h-7 w-7 items-center justify-center">
+                                <div className="absolute h-14 w-14 rounded-full bg-blue-500/20 ring-2 ring-white/80 shadow-[0_0_0_8px_rgba(59,130,246,0.18)]" />
+                                <div className="absolute h-7 w-7 rounded-full border-[2.5px] border-white bg-blue-500 shadow-lg" />
+                            </div>
+                        </MarkerContent>
+                    </MapMarker>
+                )}
 
             </MapComponent>
         </div>
