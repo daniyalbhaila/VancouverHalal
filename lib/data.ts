@@ -40,6 +40,89 @@ type RawRow = {
     temporarily_closed: boolean | null;
 };
 
+type OpeningHoursPeriod = {
+    open?: {
+        day: number;
+        time: string;
+    };
+    close?: {
+        day: number;
+        time: string;
+    };
+};
+
+type OpeningHours = {
+    periods?: OpeningHoursPeriod[];
+    open_now?: boolean;
+};
+
+const VANCOUVER_TIME_ZONE = 'America/Vancouver';
+const MINUTES_PER_DAY = 24 * 60;
+const MINUTES_PER_WEEK = 7 * MINUTES_PER_DAY;
+
+const parseMinutes = (time: string) => {
+    const hours = Number(time.slice(0, 2));
+    const minutes = Number(time.slice(2));
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+        return null;
+    }
+    return hours * 60 + minutes;
+};
+
+const getCurrentVancouverMinutes = () => {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: VANCOUVER_TIME_ZONE,
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
+    const parts = formatter.formatToParts(now);
+    const weekday = parts.find((part) => part.type === 'weekday')?.value ?? 'Sun';
+    const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? '0');
+    const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? '0');
+    const dayIndexMap: Record<string, number> = {
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
+    };
+    const dayIndex = dayIndexMap[weekday] ?? 0;
+    return dayIndex * MINUTES_PER_DAY + hour * 60 + minute;
+};
+
+const isOpenFromPeriods = (openingHours: OpeningHours | null) => {
+    if (!openingHours?.periods || openingHours.periods.length === 0) {
+        return false;
+    }
+
+    const nowMinutes = getCurrentVancouverMinutes();
+    return openingHours.periods.some((period) => {
+        if (!period.open) {
+            return false;
+        }
+        if (!period.close) {
+            return true;
+        }
+        const openMinutes = parseMinutes(period.open.time);
+        const closeMinutes = parseMinutes(period.close.time);
+        if (openMinutes === null || closeMinutes === null) {
+            return false;
+        }
+        const openTotal = period.open.day * MINUTES_PER_DAY + openMinutes;
+        let closeTotal = period.close.day * MINUTES_PER_DAY + closeMinutes;
+        if (closeTotal <= openTotal) {
+            closeTotal += MINUTES_PER_WEEK;
+        }
+        const normalizedNow = nowMinutes < openTotal ? nowMinutes + MINUTES_PER_WEEK : nowMinutes;
+        return normalizedNow >= openTotal && normalizedNow < closeTotal;
+    });
+};
+
 export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
     const rawData = await fetchAll<RawRow>("halal_restaurants", {
         select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed",
@@ -67,14 +150,17 @@ export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
             let isOpenNow = false;
             try {
                 if (r.opening_hours) {
-                    // It comes as an object from JSON response, no need to parse
-                    const parsedHours = r.opening_hours;
-                    if (parsedHours && typeof parsedHours.open_now === 'boolean') {
+                    const parsedHours: OpeningHours =
+                        typeof r.opening_hours === 'string'
+                            ? JSON.parse(r.opening_hours)
+                            : r.opening_hours;
+                    isOpenNow = isOpenFromPeriods(parsedHours);
+                    if (!parsedHours?.periods && typeof parsedHours?.open_now === 'boolean') {
                         isOpenNow = parsedHours.open_now;
                     }
                 }
             } catch (e) {
-                // ignore
+                isOpenNow = false;
             }
 
             return {
