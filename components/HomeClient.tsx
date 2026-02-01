@@ -3,9 +3,9 @@
 import { RestaurantCard as RestaurantType } from '@/lib/data';
 import { RestaurantCard } from '@/components/RestaurantCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
-import { Loader2, SlidersHorizontal, MapPin } from 'lucide-react';
+import { SlidersHorizontal, MapPin } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
@@ -28,6 +28,9 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     const { location, loading: locationLoading } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
+    const workerRef = useRef<Worker | null>(null);
+    const requestIdRef = useRef(0);
+    const [workerReady, setWorkerReady] = useState(false);
 
     // Sync view with URL param on mount and updates
     useEffect(() => {
@@ -49,50 +52,115 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     // We no longer need an initial fetch effect because data is passed in!
     // But we still need to derive distance when location becomes available.
 
-    // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
-    const filteredRestaurants = useMemo(() => {
-        let result: RestaurantWithDistance[] = addDistanceToRestaurants(initialRestaurants, location);
-
-        // 0. Calculate Distance if location is available
-        // 1. Filter by Category
-        if (selectedCategory) {
-            result = result.filter(r =>
-                r.categories.some(c => c.toLowerCase().includes(selectedCategory.toLowerCase()))
-            );
-        }
-
-        // 2. Filter by Open Now
-        if (showOpenOnly) {
-            result = result.filter(r => r.isOpenNow);
-        }
-
-        // 3. Filter by Radius (only if location is known)
-        if (location && radius <= 50) {
-            result = result.filter(r => (r.distance || 0) <= radius);
-        }
-
-        // 4. Sort
-        result.sort((a, b) => {
-            if (sortBy === 'distance' && location) {
-                return (a.distance || 0) - (b.distance || 0);
-            } else if (sortBy === 'rating') {
-                return b.rating - a.rating;
-            } else if (sortBy === 'recommended') {
-                const distancePenalty = (a.distance || 0) * 0.2;
-                const reviewBonusA = Math.log10(a.reviews + 1) * 0.1;
-                const scoreA = a.rating + reviewBonusA - distancePenalty;
-
-                const distancePenaltyB = (b.distance || 0) * 0.2;
-                const reviewBonusB = Math.log10(b.reviews + 1) * 0.1;
-                const scoreB = b.rating + reviewBonusB - distancePenaltyB;
-
-                return scoreB - scoreA;
+    const computeRestaurants = useMemo(() => {
+        return (
+            restaurants: RestaurantType[],
+            currentLocation: { lat: number; lng: number } | null,
+            filters: {
+                selectedCategory: string;
+                showOpenOnly: boolean;
+                radius: number;
+                sortBy: 'recommended' | 'distance' | 'rating';
             }
-            return 0;
-        });
+        ) => {
+            let result: RestaurantWithDistance[] = addDistanceToRestaurants(restaurants, currentLocation);
 
-        return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location]);
+            if (filters.selectedCategory) {
+                result = result.filter(r =>
+                    r.categories.some(c => c.toLowerCase().includes(filters.selectedCategory.toLowerCase()))
+                );
+            }
+
+            if (filters.showOpenOnly) {
+                result = result.filter(r => r.isOpenNow);
+            }
+
+            if (currentLocation && filters.radius <= 50) {
+                result = result.filter(r => (r.distance || 0) <= filters.radius);
+            }
+
+            result.sort((a, b) => {
+                if (filters.sortBy === 'distance' && currentLocation) {
+                    return (a.distance || 0) - (b.distance || 0);
+                } else if (filters.sortBy === 'rating') {
+                    return b.rating - a.rating;
+                } else if (filters.sortBy === 'recommended') {
+                    const distancePenalty = (a.distance || 0) * 0.2;
+                    const reviewBonusA = Math.log10(a.reviews + 1) * 0.1;
+                    const scoreA = a.rating + reviewBonusA - distancePenalty;
+
+                    const distancePenaltyB = (b.distance || 0) * 0.2;
+                    const reviewBonusB = Math.log10(b.reviews + 1) * 0.1;
+                    const scoreB = b.rating + reviewBonusB - distancePenaltyB;
+
+                    return scoreB - scoreA;
+                }
+                return 0;
+            });
+
+            return result;
+        };
+    }, []);
+
+    const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantWithDistance[]>(() =>
+        computeRestaurants(initialRestaurants, location, {
+            selectedCategory,
+            showOpenOnly,
+            radius,
+            sortBy,
+        })
+    );
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !('Worker' in window)) {
+            return;
+        }
+
+        const worker = new Worker('/restaurant-sort.worker.js');
+        workerRef.current = worker;
+        setWorkerReady(true);
+
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type !== 'filterSort') return;
+            if (event.data.requestId !== requestIdRef.current) return;
+            setFilteredRestaurants(event.data.result || []);
+        };
+
+        worker.addEventListener('message', handleMessage);
+
+        return () => {
+            worker.removeEventListener('message', handleMessage);
+            worker.terminate();
+            workerRef.current = null;
+            setWorkerReady(false);
+        };
+    }, []);
+
+    useEffect(() => {
+        const filters = {
+            selectedCategory,
+            showOpenOnly,
+            radius,
+            sortBy,
+        };
+
+        if (workerRef.current) {
+            const requestId = requestIdRef.current + 1;
+            requestIdRef.current = requestId;
+            workerRef.current.postMessage({
+                type: 'filterSort',
+                requestId,
+                payload: {
+                    restaurants: initialRestaurants,
+                    location,
+                    filters,
+                },
+            });
+            return;
+        }
+
+        setFilteredRestaurants(computeRestaurants(initialRestaurants, location, filters));
+    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, computeRestaurants, workerReady]);
 
 
 
@@ -201,13 +269,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
             {/* Feed Container */}
             <div className={cn("pb-32 pt-4 px-4 max-w-md mx-auto min-h-[500px]", view === 'map' ? 'hidden' : 'block')}>
-                {/* Show loading state until location is resolved */}
-                {locationLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
-                        <p className="text-zinc-400 text-sm font-medium animate-pulse">Finding nearby halal spots...</p>
-                    </div>
-                ) : filteredRestaurants.length > 0 ? (
+                {filteredRestaurants.length > 0 ? (
                     filteredRestaurants.map((restaurant) => (
                         <div key={restaurant.id} className="relative">
                             <RestaurantCard data={{ ...restaurant, distance: restaurant.distance ?? undefined }} />

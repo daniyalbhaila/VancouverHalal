@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
@@ -19,39 +19,88 @@ interface MapProps {
 export default function Map({ restaurants, isVisible = true }: MapProps) {
     const mapRef = useRef<maplibregl.Map>(null); // Ref to the map instance
     const { location } = useLocation();
-    const hasCentered = useRef(false);
+    const workerRef = useRef<Worker | null>(null);
+    const closestRequestIdRef = useRef(0);
 
     // Default to Vancouver center
     const defaultCenter = { lng: -123.1207, lat: 49.2827 };
 
     // Resize map when visibility changes
     useEffect(() => {
+        if (typeof window === 'undefined' || !('Worker' in window)) {
+            return;
+        }
+
+        const worker = new Worker('/restaurant-sort.worker.js');
+        workerRef.current = worker;
+
+        return () => {
+            worker.terminate();
+            workerRef.current = null;
+        };
+    }, []);
+
+    const getClosestRestaurants = useCallback((loc: { lat: number; lng: number }, rests: RestaurantCard[]) => {
+        if (!workerRef.current) {
+            return Promise.resolve(
+                [...rests]
+                    .map(r => ({
+                        ...r,
+                        dist: calculateDistance(loc.lat, loc.lng, r.location.lat, r.location.lng)
+                    }))
+                    .sort((a, b) => a.dist - b.dist)
+                    .slice(0, 10)
+            );
+        }
+
+        return new Promise<RestaurantCard[]>((resolve) => {
+            const requestId = closestRequestIdRef.current + 1;
+            closestRequestIdRef.current = requestId;
+
+            const handleMessage = (event: MessageEvent) => {
+                if (event.data?.type !== 'closest') return;
+                if (event.data.requestId !== requestId) return;
+                workerRef.current?.removeEventListener('message', handleMessage);
+                resolve(event.data.result || []);
+            };
+
+            workerRef.current?.addEventListener('message', handleMessage);
+            workerRef.current?.postMessage({
+                type: 'closest',
+                requestId,
+                payload: {
+                    restaurants: rests,
+                    location: loc,
+                    count: 10,
+                },
+            });
+        });
+    }, []);
+
+    useEffect(() => {
         if (isVisible && mapRef.current) {
-            // Give it a tick to paint the display:block
-            setTimeout(() => {
+            const timeout = setTimeout(() => {
                 mapRef.current?.resize();
 
-                // If we haven't centered properly (or if we need to re-center because it was hidden)
                 if (location && restaurants.length > 0) {
-                    fitMapToBounds(location, restaurants);
+                    getClosestRestaurants(location, restaurants).then((closest) => {
+                        if (!mapRef.current) return;
+                        fitMapToBounds(location, closest);
+                    });
                 }
             }, 100);
+
+            return () => clearTimeout(timeout);
         }
-    }, [isVisible, location, restaurants]);
+    }, [isVisible, location, restaurants, getClosestRestaurants]);
 
     const fitMapToBounds = (loc: { lat: number, lng: number }, rests: RestaurantCard[]) => {
         if (!mapRef.current) return;
 
-        // Find 10 closest restaurants
-        const sortedByDist = [...rests]
-            .map(r => ({ ...r, dist: calculateDistance(loc.lat, loc.lng, r.location.lat, r.location.lng) }))
-            .sort((a, b) => a.dist - b.dist)
-            .slice(0, 10);
-
         // Create bounds including user and these restaurants
         const bounds = new maplibregl.LngLatBounds();
         bounds.extend([loc.lng, loc.lat]);
-        sortedByDist.forEach(r => bounds.extend([r.location.lng, r.location.lat]));
+        rests.forEach(r => bounds.extend([r.location.lng, r.location.lat]));
 
         try {
             mapRef.current.fitBounds(bounds, {
@@ -60,7 +109,6 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                 duration: 2000,
                 essential: true
             });
-            hasCentered.current = true;
         } catch (e) {
             console.warn('Map fitBounds failed', e);
         }

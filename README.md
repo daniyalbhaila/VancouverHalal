@@ -1,59 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Halal Maps
+
+Discover top-rated halal restaurants in Vancouver. Halal Maps is a mobile-first discovery experience with list, map, swipe, and saved flows. The current city instance is branded as Vancouver Halal.
+
+## Highlights
+- Explore curated halal restaurants with filters for category, open-now, radius, and sort.
+- Map view with ratings-based markers, popups, and directions.
+- Swipe deck to quickly like or skip restaurants.
+- Saved list stored locally on the device.
+- Hourly data refresh from Supabase.
+
+## Product Routes
+- `/` Explore list (Vancouver Halal)
+- `/?view=map` Map view
+- `/swipe` Swipe deck
+- `/saved` Saved favorites
+
+## Tech Stack
+- Next.js App Router (server components for data fetch, client components for interactivity)
+- Supabase REST API for restaurant data
+- MapLibre GL for mapping
+- Tailwind CSS for styling
 
 ## Getting Started
+1. Install dependencies
 
-First, run the development server:
+```bash
+npm install
+```
+
+2. Set environment variables
+
+Create a `.env.local` file with:
+
+```bash
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+3. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Data Source
+Restaurant data is fetched from a Supabase view/table named `halal_restaurants` via REST and transformed in `lib/data.ts`. The app filters out closed locations and computes open-now using Google-style opening hours data.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Caching
+Pages use `revalidate = 3600` (hourly). Location is cached in localStorage for 5 minutes to reduce prompts.
 
-## Learn More
+## Troubleshooting
+- Missing env vars: the app will throw if `SUPABASE_URL` or `SUPABASE_ANON_KEY` are not set.
+- Location issues: ensure your browser allows geolocation for accurate distance sorting and radius filtering.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Dark Mode Support
-
-Dark mode support is fully implemented but **disabled by default**. To enable it:
-
-1.  **CSS Variables**: Open `app/globals.css` and change the media query:
-    ```css
-    /* Change this: */
-    @media (max-width: 0px) { ... }
-
-    /* To this: */
-    @media (prefers-color-scheme: dark) { ... }
-    ```
-
-2.  **Map Theme**: Open `components/Map.tsx` and uncomment the dark mode detection hook:
-    ```tsx
-    // Uncomment this block:
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        setIsDark(mediaQuery.matches);
-        // ... rest of the hook
-    }, []);
-    ```
+## Deployment Notes
+The app is compatible with standard Next.js hosting (Vercel, Netlify, etc.). Ensure env vars are configured in the deployment environment.
