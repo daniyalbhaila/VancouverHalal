@@ -27,31 +27,15 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const searchParams = useSearchParams();
 
     const { location, loading: locationLoading } = useLocation();
-    const [view, setView] = useState<'list' | 'map'>(() => {
-        if (typeof window === 'undefined') {
-            return 'list';
-        }
-        const cached = sessionStorage.getItem('home-state-v1');
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached) as { view?: 'list' | 'map' };
-                return parsed.view ?? 'list';
-            } catch {
-                return 'list';
-            }
-        }
-        return 'list';
-    });
+    const [view, setView] = useState<'list' | 'map'>('list');
 
     // Sync view with URL param on mount and updates
     useEffect(() => {
         const viewParam = searchParams.get('view');
-        if (viewParam) {
-            if (viewParam === 'map') {
-                setView('map');
-            } else {
-                setView('list');
-            }
+        if (viewParam === 'map') {
+            setView('map');
+        } else {
+            setView('list');
         }
     }, [searchParams]);
 
@@ -115,7 +99,6 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const nextState = {
-            view,
             selectedCategory,
             showOpenOnly,
             radius,
@@ -123,7 +106,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             showFilters,
         };
         sessionStorage.setItem('home-state-v1', JSON.stringify(nextState));
-    }, [view, selectedCategory, showOpenOnly, radius, sortBy, showFilters]);
+    }, [selectedCategory, showOpenOnly, radius, sortBy, showFilters]);
 
     useEffect(() => {
         import('@/components/Map');
