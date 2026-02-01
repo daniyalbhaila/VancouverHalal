@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getDiscoveryRestaurants } from '@/lib/data';
+import { getCachedDiscoveryRestaurants } from '@/lib/cached-restaurants';
 import HomeClient from '@/components/HomeClient';
 import { Loader2 } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -27,7 +27,7 @@ function LoadingFallback() {
 }
 
 export default async function Home() {
-  const restaurants = await getDiscoveryRestaurants();
+  const restaurants = await getCachedDiscoveryRestaurants();
 
   return (
     <main>
