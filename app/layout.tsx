@@ -35,7 +35,10 @@ export default function RootLayout({
         newsreader.variable
       )}>
         <Providers>
-          <main className="pb-28">
+          <main
+            className="pb-28 transform-gpu"
+            style={{ viewTransitionName: "app-shell" }}
+          >
             {children}
           </main>
 

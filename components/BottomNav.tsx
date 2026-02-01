@@ -13,6 +13,16 @@ export default function BottomNav() {
     const router = useRouter();
     const isMapView = searchParams.get('view') === 'map';
 
+    const navigate = (href: string) => {
+        const run = () => router.push(href);
+        if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+            (document as Document & { startViewTransition?: (callback: () => void) => void })
+                .startViewTransition?.(run);
+        } else {
+            run();
+        }
+    };
+
     useEffect(() => {
         router.prefetch('/');
         router.prefetch('/?view=map');
@@ -44,6 +54,10 @@ export default function BottomNav() {
                         key={tab.name}
                         href={tab.href}
                         className="relative flex flex-col items-center justify-center w-12 h-12"
+                        onClick={(event) => {
+                            event.preventDefault();
+                            navigate(tab.href);
+                        }}
                     >
                         {tab.isActive && (
                             <motion.div

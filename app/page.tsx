@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
-import { getDiscoveryRestaurants } from '@/lib/data';
-import HomeClient from '@/components/HomeClient';
 import { Loader2 } from 'lucide-react';
 import type { Metadata } from 'next';
+import HomeContent from '@/app/_components/HomeContent';
 
 export const revalidate = 3600;
 
@@ -26,13 +25,11 @@ function LoadingFallback() {
   );
 }
 
-export default async function Home() {
-  const restaurants = await getDiscoveryRestaurants();
-
+export default function Home() {
   return (
     <main>
       <Suspense fallback={<LoadingFallback />}>
-        <HomeClient initialRestaurants={restaurants} />
+        <HomeContent />
       </Suspense>
     </main>
   );

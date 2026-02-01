@@ -85,8 +85,8 @@ const SwipeableCard = ({
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.7}
             onDragEnd={handleDragEnd}
-            style={{ x, rotate }}
-            className="absolute inset-x-4 inset-y-0 z-10 touch-none cursor-grab active:cursor-grabbing"
+            style={{ x, rotate, translateZ: 0, touchAction: "pan-y" }}
+            className="absolute inset-x-4 inset-y-0 z-10 cursor-grab active:cursor-grabbing will-change-transform transform-gpu"
         >
             <div className="relative w-full h-full bg-zinc-900 rounded-[2.5rem] shadow-2xl overflow-hidden select-none ring-1 ring-white/10">
                 {/* Visual Content Helper */}
