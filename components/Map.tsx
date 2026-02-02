@@ -152,20 +152,20 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
 
                                         {/* Action Row - Dark buttons like discovery */}
                                         <div className="flex items-center gap-2">
-                                            <span
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="contents"
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    window.open(
+                                                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + " " + restaurant.address)}`,
+                                                        '_blank'
+                                                    );
+                                                }}
+                                                className="flex-1 flex items-center justify-center gap-1 py-2 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-zinc-700 transition-colors"
                                             >
-                                                <a
-                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + " " + restaurant.address)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex-1 flex items-center justify-center gap-1 py-2 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-zinc-700 transition-colors"
-                                                >
-                                                    <Navigation className="w-3 h-3" />
-                                                    Directions
-                                                </a>
-                                            </span>
+                                                <Navigation className="w-3 h-3" />
+                                                Directions
+                                            </button>
                                             {/* Subtle "See more" text - just tapping card also works */}
                                             <span className="text-xs text-zinc-400 font-medium">
                                                 Tap for details →
