@@ -111,7 +111,10 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                             <Link href={`/restaurant/${restaurant.slug}`} className="block">
                                 <div className="flex flex-col overflow-hidden rounded-2xl">
                                     {/* Image Header */}
-                                    <div className="h-28 w-full bg-zinc-100 relative group-hover:scale-105 transition-transform duration-500">
+                                    <div
+                                        className="h-28 w-full bg-zinc-100 relative group-hover:scale-105 transition-transform duration-500"
+                                        style={{ viewTransitionName: `restaurant-hero-${restaurant.slug}` }}
+                                    >
                                         <RestaurantImage
                                             src={restaurant.image}
                                             alt={restaurant.name}

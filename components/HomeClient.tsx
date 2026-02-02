@@ -101,7 +101,6 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     return (
         <div
             className="min-h-screen bg-[var(--bg-base)] relative transition-colors"
-            style={{ viewTransitionName: 'page-content' }}
         >
             {/* Header / Title Section */}
             <div

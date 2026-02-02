@@ -49,7 +49,6 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
     return (
         <div
             className="min-h-screen bg-bg-base pb-32"
-            style={{ viewTransitionName: 'page-content' }}
         >
 
             {/* Absolute Back Button */}
