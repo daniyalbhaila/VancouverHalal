@@ -208,3 +208,54 @@
     display: none !important;
   }
 }
+
+/* ============================================
+   VIEW TRANSITIONS API - Native-like Slides
+   ============================================ */
+
+/* Default cross-fade is too slow - speed it up */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); /* iOS-like easing */
+}
+
+/* Forward navigation: new page slides in from right */
+::view-transition-old(root) {
+  animation-name: slide-out-left;
+}
+::view-transition-new(root) {
+  animation-name: slide-in-from-right;
+}
+
+/* Back navigation: old page slides out to right (handled by browser with history) */
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(30%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-15%);
+    opacity: 0;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
