@@ -5,10 +5,57 @@ We are building the **trust layer** for Halal dining. Unlike Google Maps (broad 
 
 ---
 
-## 🟢 Phase 1: Pre-Launch (Hybrid Data Strategy)
+## 🎯 Launch Target: RAMADAN 2026
+**Ramadan starts ~Feb 28, 2026 (20 days away)**
+
+This is our launch window. Muslims will be actively searching for:
+- "Ramadan deals Vancouver"
+- "Iftar restaurants Vancouver"
+- "Best halal restaurants Vancouver"
+
+**We launch BEFORE Ramadan. We ride the wave.**
+
+### Ramadan-Specific Features (HIGH PRIORITY)
+| Feature | Effort | Why |
+|---------|--------|-----|
+| **`/ramadan-deals-vancouver-2026`** | 1 day | SEO goldmine + curated list of Iftar specials |
+| **Ramadan Deals Tag** | 2 hrs | Tag restaurants with Iftar deals (manual curation OK) |
+| **"Submit Ramadan Deal" Form** | 4 hrs | Let restaurants/users submit deals |
+
+### Ramadan Marketing Blitz (Week 2-3: Feb 10-28)
+- [ ] **Reddit**: r/vancouver, r/islam, r/halal ("I built this for Ramadan")
+- [ ] **Facebook Groups**: "Halal in Vancouver", "Vancouver Muslims", "Surrey Desis"
+- [ ] **WhatsApp/Telegram**: Muslim community groups
+- [ ] **TikTok/Reels**: "Best Iftar Spots in Vancouver 2026" (create 3-5 videos)
+- [ ] **Mosque Bulletin Boards**: Print QR codes (old school but works)
+- [ ] **Local Influencers**: DM Vancouver halal food bloggers
+
+---
+
+## Current State (What We Have Today)
+- ✅ **250+ Halal restaurants** in Vancouver (from public halal lists)
+- ✅ **Discovery**: List view + Map view
+- ✅ **Filters**: Category, Distance, Open Now
+- ✅ **Swipe Mode**: Gamified discovery (unique differentiator)
+- ✅ **Saved List**: Works with localStorage
+- ✅ **Restaurant Details Page**: Name, address, hours, category
+- ⚠️ **Missing**: Images (gradient fallbacks), Halal verification indicators, Alcohol policy
+
+---
+
+## � Phase 1: Pre-Launch (Hybrid Data Strategy)
 **Focus**: Seed Data + Community Intake.
 **Goal**: The app has enough "good stuff" to be useful, but invites users to build the rest.
 **Exit Criteria**: 50 Seeded Listings + 10 User Submissions.
+
+### Must-Have for Launch
+| Feature | Effort | Why |
+|---------|--------|-----|
+| **Trust Badges** ("Community Listed") | 2 hrs | Users need to know WHY it's on the list |
+| **Disclaimer** | 30 min | "Sourced from public lists. Verify before dining." |
+| **Report Issue Button** | 4 hrs | "Closed? Not Halal? Wrong info?" → builds trust loop |
+| **UserJot/Feedback Widget** | 1 hr | Know what's actually broken from real users |
+| **Analytics (PostHog/Plausible)** | 1 hr | See what users do, not what they say |
 
 ### Key Deliverables
 - [ ] **"Suggest a Spot" (Priority)**:
@@ -23,7 +70,6 @@ We are building the **trust layer** for Halal dining. Unlike Google Maps (broad 
     - **Source**: Since we lack menus, we use **Google Attributes** (`serves_beer`, `serves_wine`) + **Reviews**.
     - **Logic**: AI scans recent reviews for "Bacon", "Pork", "Alcohol" mentions.
     - **Output**: Flags "High Risk" spots (e.g. "Reviewer mentioned 'best wine list'").
-    
 - [ ] **Halal Schema**:
     - Add `alcohol_policy`, `meat_origin` columns so users *can* report on them.
 
@@ -44,8 +90,10 @@ We are building the **trust layer** for Halal dining. Unlike Google Maps (broad 
 - [ ] **Smart Filtering**:
     - Filter by "No Alcohol" (for strict diners) vs "Open Late" (for youth).
     - **Why**: Addresses the distinct needs of our two main personas.
-- [ ] **Basic SEO**:
-    - Programmatic pages for "Best Halal Burgers Vancouver", etc.
+- [ ] **Programmatic SEO**:
+    - Auto-generate: `/best-halal-[cuisine]-vancouver` (burgers, indian, chinese, etc.)
+    - Auto-generate: `/halal-restaurants-[neighborhood]` (downtown, surrey, burnaby)
+    - Auto-generate: `/best-iftar-restaurants-vancouver`, `/halal-buffet-vancouver`
 
 ---
 
@@ -61,6 +109,9 @@ We are building the **trust layer** for Halal dining. Unlike Google Maps (broad 
 - [ ] **Crowdsourced Verification**:
     - "Upvote/Downvote" Halal status accuracy.
     - "Report Closed" button.
+- [ ] **Halal Status System**:
+    - `certified` / `muslim_owned` / `community_listed` / `unverified`
+    - Display badges on cards and detail pages.
 - [ ] **Review Summaries**:
     - AI-generated summaries of what *Halal* diners say (e.g. "Great food but alcohol served at bar").
 
@@ -75,12 +126,21 @@ We are building the **trust layer** for Halal dining. Unlike Google Maps (broad 
     - Paid placement for "Trending" spots (clearly marked).
 - [ ] **Affiliate Revenue**:
     - "Order Delivery" buttons (UberEats/DoorDash affiliate links).
+- [ ] **Premium Tier**:
+    - "Dineout Gold" – Exclusive deals at partner restaurants.
 - [ ] **Data Products**:
     - Selling "Halal Trend Reports" to restaurant suppliers.
 
 ---
 
-## Immediate Next Steps (To Enter Phase 1)
-1.  **Tech**: Set up Python Pipeline with API Keys to fix the "Empty Images" issue.
-2.  **Product**: Define the "Halal Policy" attributes (Strict vs Flexible) in the database.
-3.  **Content**: Seed the top 50 restaurants with manual TikTok links.
+## Immediate Next Steps
+
+| Day | Task |
+|-----|------|
+| **Today** | Add Trust Badges + Disclaimer + Report Button |
+| **Tomorrow** | Add UserJot + Analytics |
+| **Day 3** | Create `/ramadan-deals-vancouver-2026` page |
+| **Day 4-5** | Curate 20-30 Ramadan deals manually |
+| **Day 6-7** | Launch + Post to Reddit/FB groups |
+| **Week 2** | TikTok content + Influencer outreach |
+| **Week 3** | SEO pages + Mosque outreach |
