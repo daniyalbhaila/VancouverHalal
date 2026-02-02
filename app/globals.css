@@ -213,49 +213,89 @@
    VIEW TRANSITIONS API - Native-like Slides
    ============================================ */
 
-/* Default cross-fade is too slow - speed it up */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 200ms;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); /* iOS-like easing */
+/* Shared timing for all view transitions */
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  /* iOS-like easing */
 }
 
-/* Forward navigation: new page slides in from right */
+/* ----- PAGE TRANSITIONS ----- */
+
+/* Forward: page slides in from bottom/right, old page fades and scales down slightly */
 ::view-transition-old(root) {
-  animation-name: slide-out-left;
+  animation-name: page-exit-to-back;
 }
+
 ::view-transition-new(root) {
-  animation-name: slide-in-from-right;
+  animation-name: page-enter-from-bottom;
 }
 
-/* Back navigation: old page slides out to right (handled by browser with history) */
-
-@keyframes slide-in-from-right {
+@keyframes page-enter-from-bottom {
   from {
-    transform: translateX(30%);
+    transform: translateY(8%);
     opacity: 0;
   }
+
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-@keyframes slide-out-left {
+@keyframes page-exit-to-back {
   from {
-    transform: translateX(0);
+    transform: scale(1);
     opacity: 1;
   }
+
   to {
-    transform: translateX(-15%);
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* ----- BOTTOM NAV TRANSITIONS ----- */
+/* Named element transitions: slides down when going to restaurant, up when returning */
+
+::view-transition-old(bottom-nav) {
+  animation-name: nav-slide-out;
+}
+
+::view-transition-new(bottom-nav) {
+  animation-name: nav-slide-in;
+}
+
+@keyframes nav-slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes nav-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
     opacity: 0;
   }
 }
 
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
     animation: none;
   }
 }

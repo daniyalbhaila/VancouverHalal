@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from 'next';
 import { RestaurantImage } from "@/components/RestaurantImage";
 import { HoursDisplay } from "@/components/HoursDisplay";
+import { LocationMap } from "@/components/LocationMap";
 
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -118,22 +119,15 @@ export default async function RestaurantPage({ params }: { params: Promise<{ id:
                     {/* Hours - Collapsible */}
                     <HoursDisplay openingHours={data.openingHours} isOpenNow={data.isOpenNow} />
 
-                    {/* Location - Glass Effect to match */}
-                    <div className="bg-bg-card rounded-2xl border border-border/50 overflow-hidden">
-                        <div className="flex items-center gap-3 p-4">
-                            <MapPin className="w-5 h-5 text-text-secondary shrink-0" />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm text-text-primary font-medium truncate">{data.address}</p>
-                                <a
-                                    href={directionsUrl}
-                                    target="_blank"
-                                    className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline mt-1"
-                                >
-                                    View on Google Maps <ArrowLeft className="w-3 h-3 rotate-180" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Location - Map Preview */}
+                    <LocationMap
+                        lat={data.location.lat}
+                        lng={data.location.lng}
+                        name={data.name}
+                        address={data.address}
+                        googleMapsUrl={directionsUrl}
+                        rating={data.rating}
+                    />
 
                 </div>
             </div>

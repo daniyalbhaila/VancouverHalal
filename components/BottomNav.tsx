@@ -35,6 +35,7 @@ export default function BottomNav() {
             <motion.div
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
+                style={{ viewTransitionName: 'bottom-nav' }}
                 className={cn(
                     "flex items-center justify-between px-6 py-3 w-full max-w-[320px]",
                     "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-2xl",
