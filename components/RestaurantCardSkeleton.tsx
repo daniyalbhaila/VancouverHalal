@@ -3,7 +3,7 @@
 export function RestaurantCardSkeleton() {
   return (
     <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md bg-zinc-900/80">
-      <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900" />
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
       {/* Top badges */}
@@ -30,9 +30,12 @@ export function RestaurantCardSkeleton() {
             <div className="h-4 w-12 bg-white/10 rounded-full" />
             <div className="h-4 w-16 bg-white/10 rounded-full" />
           </div>
-          <div className="h-6 w-12 bg-white/10 rounded-full" />
+          <div className="h-7 w-20 bg-white/10 rounded-full" />
         </div>
       </div>
+
+      {/* Shimmer Overlay */}
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent z-50 pointer-events-none" />
     </div>
   );
 }

@@ -10,6 +10,7 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
     return (
         <div
             className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform block"
+            style={{ viewTransitionName: `restaurant-hero-${data.slug}` }}
         >
             {/* Absolute Link for Main Click Action - Z-Index 0 */}
             <Link

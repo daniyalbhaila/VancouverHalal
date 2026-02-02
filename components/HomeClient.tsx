@@ -10,6 +10,8 @@ import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/restaurants';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RestaurantCardSkeleton } from '@/components/RestaurantCardSkeleton';
 import { MapSkeleton } from '@/components/MapSkeleton';
 
 const MapComponent = dynamic(() => import('@/components/Map'), {
@@ -202,20 +204,33 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 )}
             </div>
 
+
             {/* Feed Container */}
             <div className={cn("pb-32 pt-4 px-4 max-w-md mx-auto min-h-[500px]", view === 'map' ? 'hidden' : 'block')}>
                 {/* Show loading state until location is resolved */}
                 {locationLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
-                        <p className="text-zinc-400 text-sm font-medium animate-pulse">Finding nearby halal spots...</p>
+                    <div className="space-y-3">
+                        <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2 animate-pulse">Finding nearby spots...</p>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <RestaurantCardSkeleton key={i} />
+                        ))}
                     </div>
                 ) : filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map((restaurant) => (
-                        <div key={restaurant.id} className="relative">
-                            <RestaurantCard data={{ ...restaurant, distance: restaurant.distance ?? undefined }} />
-                        </div>
-                    ))
+                    <AnimatePresence mode="popLayout">
+                        {filteredRestaurants.map((restaurant) => (
+                            <motion.div
+                                key={restaurant.id}
+                                layout
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.2 }}
+                                className="relative"
+                            >
+                                <RestaurantCard data={{ ...restaurant, distance: restaurant.distance ?? undefined }} />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 ) : (
                     <div className="text-center py-20 text-zinc-400">
                         <p className="mb-4">No match found inside {radius}km.</p>

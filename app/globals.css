@@ -298,6 +298,17 @@
   animation-name: nav-slide-out;
 }
 
+/* ----- LOADING SHIMMER ----- */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 ::view-transition-new(bottom-nav) {
   animation-name: nav-slide-in;
 }
