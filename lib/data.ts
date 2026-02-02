@@ -1,4 +1,4 @@
-import { fetchAll } from './supabase';
+import { fetchAll, fetchOne } from './supabase';
 
 export type RestaurantCard = {
     id: string;
@@ -184,4 +184,57 @@ export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
             };
         })
         .sort((a, b) => b.rating - a.rating); // Default sort by rating
+}
+
+export async function getRestaurantById(id: string): Promise<RestaurantCard | null> {
+    const rawData = await fetchOne<RawRow>("halal_restaurants", {
+        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed",
+        filters: [`id=eq.${id}`],
+    });
+
+    if (!rawData) return null;
+
+    // Reuse transformation logic (this should ideally be refactored into a helper, but for now copying for safety/speed)
+    const r = rawData;
+    let categories: string[] = Array.isArray(r.categories) ? r.categories : [];
+    const junkCategories = ['establishment', 'point_of_interest', 'food', 'store', 'restaurant'];
+    const filteredCategories = categories
+        .filter(c => !junkCategories.includes(c.toLowerCase()))
+        .map(c => c.replace(/ restaurant$/i, '').trim());
+
+    let isOpenNow = false;
+    try {
+        if (r.opening_hours) {
+            const parsedHours: OpeningHours =
+                typeof r.opening_hours === 'string'
+                    ? JSON.parse(r.opening_hours)
+                    : r.opening_hours;
+            isOpenNow = isOpenFromPeriods(parsedHours);
+            if (!parsedHours?.periods && typeof parsedHours?.open_now === 'boolean') {
+                isOpenNow = parsedHours.open_now;
+            }
+        }
+    } catch (e) {
+        isOpenNow = false;
+    }
+
+    return {
+        id: r.id,
+        name: r.name,
+        location: {
+            lat: r.lat ? Number(r.lat) : 0,
+            lng: r.lng ? Number(r.lng) : 0,
+        },
+        image: r.image_url,
+        categories: filteredCategories,
+        rating: r.rating ? Number(r.rating) : 0,
+        reviews: r.reviews_count || 0,
+        address: r.address || '',
+        price: r.price || '',
+        isOpenNow,
+        googleUrl: r.google_url,
+        phone: r.phone,
+        website: r.website,
+        openingHours: r.opening_hours,
+    };
 }

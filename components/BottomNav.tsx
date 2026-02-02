@@ -12,6 +12,7 @@ export default function BottomNav() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const isMapView = searchParams.get('view') === 'map';
+    const isRestaurantPage = pathname?.startsWith('/restaurant/');
 
     useEffect(() => {
         router.prefetch('/');
@@ -19,6 +20,8 @@ export default function BottomNav() {
         router.prefetch('/swipe');
         router.prefetch('/saved');
     }, [router]);
+
+    if (isRestaurantPage) return null;
 
     const tabs = [
         { name: 'Explore', href: '/', icon: Compass, isActive: pathname === '/' && !isMapView },
