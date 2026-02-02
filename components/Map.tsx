@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { RestaurantCard } from '@/lib/data';
-import { Star, Navigation, ChevronRight } from 'lucide-react';
+import { Star, Navigation, ChevronRight, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
@@ -111,7 +111,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                             <Link href={`/restaurant/${restaurant.slug}`} className="block">
                                 <div className="flex flex-col overflow-hidden rounded-2xl">
                                     {/* Image Header */}
-                                    <div className="h-28 w-full bg-zinc-100 relative">
+                                    <div className="h-28 w-full bg-zinc-100 relative group-hover:scale-105 transition-transform duration-500">
                                         <RestaurantImage
                                             src={restaurant.image}
                                             alt={restaurant.name}
@@ -119,21 +119,29 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                                             sizes="300px"
                                             fallbackTextClassName="text-4xl"
                                         />
-                                        {/* Distance Badge */}
+                                        {/* Gradient Overlay for Text Readability matches Card */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+
+                                        {/* Open/Closed Badge - Top Left */}
+                                        <div className="absolute top-2 left-2 z-10">
+                                            {restaurant.isOpenNow ? (
+                                                <div className="px-2 py-0.5 bg-emerald-500/90 backdrop-blur-md rounded-full shadow-sm flex items-center gap-1 border border-emerald-400/20">
+                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
+                                                </div>
+                                            ) : (
+                                                <div className="px-2 py-0.5 bg-red-900/70 backdrop-blur-md rounded-full shadow-sm border border-red-200/10 flex items-center">
+                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Closed</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Distance Badge - Top Right */}
                                         {location && (
-                                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold text-zinc-700 shadow-sm">
-                                                📍 {((calculateDistance(location.lat, location.lng, restaurant.location.lat, restaurant.location.lng)).toFixed(1))} km
+                                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90 z-10">
+                                                <MapPin className="w-3 h-3 text-white" />
+                                                <span className="text-[10px] font-bold">{((calculateDistance(location.lat, location.lng, restaurant.location.lat, restaurant.location.lng)).toFixed(1))} km</span>
                                             </div>
                                         )}
-                                        {/* Open/Closed Badge */}
-                                        <div className={cn(
-                                            "absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase shadow-sm",
-                                            restaurant.isOpenNow
-                                                ? "bg-emerald-500 text-white"
-                                                : "bg-rose-500 text-white"
-                                        )}>
-                                            {restaurant.isOpenNow ? 'Open' : 'Closed'}
-                                        </div>
                                     </div>
 
                                     {/* Content */}
