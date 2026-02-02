@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Clock, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { computeIsOpenNow } from '@/lib/hours';
 
 type HoursDisplayProps = {
     openingHours: any | null;
@@ -12,6 +13,14 @@ type HoursDisplayProps = {
 // Parses Google Places API `weekday_text` format
 export function HoursDisplay({ openingHours, isOpenNow }: HoursDisplayProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [timeTick, setTimeTick] = useState(0);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setTimeTick((tick) => tick + 1);
+        }, 60 * 1000);
+        return () => window.clearInterval(interval);
+    }, []);
 
     // Try to extract weekday_text array (Google Places format)
     let weekdayText: string[] = [];
@@ -28,6 +37,11 @@ export function HoursDisplay({ openingHours, isOpenNow }: HoursDisplayProps) {
     }
 
     const hasDetailedHours = weekdayText.length > 0;
+
+    const liveIsOpenNow = useMemo(
+        () => computeIsOpenNow(openingHours, isOpenNow),
+        [openingHours, isOpenNow, timeTick]
+    );
 
     // Get today's day name (0 = Sunday in JS, but Google starts with Monday)
     const today = new Date().getDay();
@@ -49,9 +63,9 @@ export function HoursDisplay({ openingHours, isOpenNow }: HoursDisplayProps) {
                     <div>
                         <span className={cn(
                             "text-sm font-bold",
-                            isOpenNow ? "text-emerald-600" : "text-red-500"
+                            liveIsOpenNow ? "text-emerald-600" : "text-red-500"
                         )}>
-                            {isOpenNow ? "Open Now" : "Closed"}
+                            {liveIsOpenNow ? "Open Now" : "Closed"}
                         </span>
                         {hasDetailedHours && weekdayText[todayIndex] && (
                             <span className="text-xs text-text-secondary ml-2">

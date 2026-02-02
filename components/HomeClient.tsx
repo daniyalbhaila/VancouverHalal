@@ -13,6 +13,7 @@ import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/res
 import { motion, AnimatePresence } from 'framer-motion';
 import { RestaurantCardSkeleton } from '@/components/RestaurantCardSkeleton';
 import { MapSkeleton } from '@/components/MapSkeleton';
+import { computeIsOpenNow } from '@/lib/hours';
 
 const MapComponent = dynamic(() => import('@/components/Map'), {
     ssr: false,
@@ -30,6 +31,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     const { location, loading: locationLoading } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
+    const [timeTick, setTimeTick] = useState(0);
 
     // Sync view with URL param on mount and updates
     useEffect(() => {
@@ -40,6 +42,13 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             setView('list');
         }
     }, [searchParams]);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setTimeTick((tick) => tick + 1);
+        }, 60 * 1000);
+        return () => window.clearInterval(interval);
+    }, []);
 
     // Filters
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -53,7 +62,12 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
     const filteredRestaurants = useMemo(() => {
-        let result: RestaurantWithDistance[] = addDistanceToRestaurants(initialRestaurants, location);
+        const withLiveStatus = initialRestaurants.map((restaurant) => ({
+            ...restaurant,
+            isOpenNow: computeIsOpenNow(restaurant.openingHours, restaurant.isOpenNow),
+        }));
+
+        let result: RestaurantWithDistance[] = addDistanceToRestaurants(withLiveStatus, location);
 
         // 0. Calculate Distance if location is available
         // 1. Filter by Category
@@ -94,7 +108,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         });
 
         return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location]);
+    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick]);
 
 
 
