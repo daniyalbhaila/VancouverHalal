@@ -1,59 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vancouver Halal - Restaurant Discovery App
 
-## Getting Started
+A curated discovery platform for halal restaurants in Vancouver, featuring list searching, interactive maps, and a fun swipe-to-discover interface.
 
-First, run the development server:
+## Product Overview & Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Core Experiences
+-   **Explore**: A comprehensive list of restaurants with powerful filters (Category, Open Now) and sorting options (Recommended, Distance, Rating). Includes a radius slider to find spots nearby.
+-   **Map View** (`/?view=map`): Visually explore the city's halal food scene. Pins are coded by rating, with quick-view popups and directions.
+-   **Swipe Deck** (`/swipe`): Can't decide? Use the "Tinder-style" deck to swipe left or right on restaurants. Likes are automatically saved to your favorites.
+-   **Saved**: Access your personal collection of favorited restaurants.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Key Capabilities
+-   **Smart Geolocation**: Uses your browser's location to calculate precise distances and show you what's nearby.
+-   **Real-time Availability**: "Open Now" filters are calculated dynamically based on complex opening hours (including late-night spots open past midnight).
+-   **Local Favorites**: Your saved restaurants are stored privately on your device.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local Development Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Dark Mode Support
-
-Dark mode support is fully implemented but **disabled by default**. To enable it:
-
-1.  **CSS Variables**: Open `app/globals.css` and change the media query:
-    ```css
-    /* Change this: */
-    @media (max-width: 0px) { ... }
-
-    /* To this: */
-    @media (prefers-color-scheme: dark) { ... }
+1.  **Clone the repository**:
+    ```bash
+    git clone <your-repo-url>
+    cd web
     ```
 
-2.  **Map Theme**: Open `components/Map.tsx` and uncomment the dark mode detection hook:
-    ```tsx
-    // Uncomment this block:
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        setIsDark(mediaQuery.matches);
-        // ... rest of the hook
-    }, []);
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    # or yarn install / pnpm install
     ```
+
+3.  **Set up Environment Variables**:
+    Create a `.env.local` file in the root directory. You will need Supabase credentials:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+4.  **Run the development server**:
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Data Source & Refresh Behavior
+
+-   **Source**: Data is sourced from a Supabase PostgreSQL database (specifically the `halal_restaurants` view).
+-   **Caching**: To optimize performance, data is fetched server-side and cached.
+-   **Revalidation**: The app revalidates data every **1 hour**. Changes made in the database will appear in the app after this cache period expires.
+
+## Deployment Notes
+
+-   **Platform**: Designed for seamless deployment on Vercel or Netlify.
+-   **Build Command**: `npm run build`
+-   **Environment**: Ensure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set in your deployment platform's environment variables.
+
+## Troubleshooting
+
+-   **"Location not found"**: Ensure your browser has granted location permissions to the site. The app defaults to a fallback location if permission is denied.
+-   **Map visuals missing**: Check developer tools console for MapLibre errors; ensure your network isn't blocking map tile requests.
+-   **Data looks old**: If you just updated the database, wait for the 1-hour revalidation window or manually rebuild the site to clear the cache.
