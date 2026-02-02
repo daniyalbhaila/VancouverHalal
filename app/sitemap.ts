@@ -2,11 +2,11 @@ import { getDiscoveryRestaurants } from '@/lib/data';
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://vancouverhalal.com'; // Replace with actual domain
+    const baseUrl = 'https://vancouverhalal.com';
     const restaurants = await getDiscoveryRestaurants();
 
     // Static routes
-    const routes: MetadataRoute.Sitemap = [
+    const staticRoutes: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
             lastModified: new Date(),
@@ -14,26 +14,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 1,
         },
         {
-            url: `${baseUrl}/map`,
+            url: `${baseUrl}/swipe`,
             lastModified: new Date(),
             changeFrequency: 'daily',
             priority: 0.8,
         },
+        {
+            url: `${baseUrl}/saved`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.5,
+        },
     ];
 
-    // Dynamic routes (if we had individual pages, which we don't yet, but good to have ready)
-    // For now, these are anchors or modal-ready URLs if we implemented them. 
-    // Since we don't have /restaurant/[id] pages yet, we'll stick to the main ones.
-    // But if we DID have them:
-    /*
-    const restaurantRoutes = restaurants.map((restaurant) => ({
-      url: `${baseUrl}/restaurant/${restaurant.id}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
+    // Restaurant pages with SEO-friendly slugs
+    const restaurantRoutes: MetadataRoute.Sitemap = restaurants.map((restaurant) => ({
+        url: `${baseUrl}/restaurant/${restaurant.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
     }));
-    return [...routes, ...restaurantRoutes];
-    */
 
-    return routes;
+    return [...staticRoutes, ...restaurantRoutes];
 }

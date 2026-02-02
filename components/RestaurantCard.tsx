@@ -13,7 +13,7 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
         >
             {/* Absolute Link for Main Click Action - Z-Index 0 */}
             <Link
-                href={`/restaurant/${data.id}`}
+                href={`/restaurant/${data.slug}`}
                 className="absolute inset-0 z-0"
                 aria-label={`View details for ${data.name}`}
             />
@@ -92,11 +92,11 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                         href={data.googleUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.name + " " + data.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 pl-2 pr-3 py-1 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-bold border border-white/10 transition-colors pointer-events-auto cursor-pointer relative z-30"
+                        className="flex items-center gap-1 pl-2 pr-3 py-1.5 bg-zinc-900 hover:bg-zinc-700 text-white rounded-full text-[10px] font-bold transition-colors pointer-events-auto cursor-pointer relative z-30 shadow-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Navigation className="w-3 h-3" />
-                        <span>Go</span>
+                        <span>Directions</span>
                     </a>
                 </div>
             </div>

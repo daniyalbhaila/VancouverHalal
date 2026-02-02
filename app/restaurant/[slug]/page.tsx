@@ -1,4 +1,4 @@
-import { getRestaurantById } from "@/lib/data";
+import { getRestaurantBySlug } from "@/lib/data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Star, MapPin, Globe, Phone, Navigation } from "lucide-react";
@@ -9,9 +9,9 @@ import { HoursDisplay } from "@/components/HoursDisplay";
 import { LocationMap } from "@/components/LocationMap";
 
 // Generate SEO Metadata dynamically
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-    const { id } = await params;
-    const restaurant = await getRestaurantById(id);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const restaurant = await getRestaurantBySlug(slug);
 
     if (!restaurant) {
         return { title: 'Restaurant Not Found' };
@@ -26,9 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
 }
 
-export default async function RestaurantPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const data = await getRestaurantById(id);
+export default async function RestaurantPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const data = await getRestaurantBySlug(slug);
 
     if (!data) {
         notFound();

@@ -1,7 +1,9 @@
 import { fetchAll, fetchOne } from './supabase';
+import { generateSlug } from './slug';
 
 export type RestaurantCard = {
     id: string;
+    slug: string;
     name: string;
     location: {
         lat: number;
@@ -165,6 +167,7 @@ export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
 
             return {
                 id: r.id,
+                slug: generateSlug(r.name, r.id),
                 name: r.name,
                 location: {
                     lat: r.lat ? Number(r.lat) : 0,
@@ -220,6 +223,7 @@ export async function getRestaurantById(id: string): Promise<RestaurantCard | nu
 
     return {
         id: r.id,
+        slug: generateSlug(r.name, r.id),
         name: r.name,
         location: {
             lat: r.lat ? Number(r.lat) : 0,
@@ -237,4 +241,25 @@ export async function getRestaurantById(id: string): Promise<RestaurantCard | nu
         website: r.website,
         openingHours: r.opening_hours,
     };
+}
+
+/**
+ * Get a restaurant by its SEO-friendly slug
+ * Extracts short ID from slug and finds matching restaurant
+ */
+export async function getRestaurantBySlug(slug: string): Promise<RestaurantCard | null> {
+    // Extract short ID from end of slug (e.g., "caveman-cafe-86a7" -> "86a7")
+    const match = slug.match(/-([a-f0-9]{4})$/);
+    if (!match) return null;
+
+    const shortId = match[1];
+
+    // Get all restaurants and find the one matching this short ID
+    // (PostgREST doesn't support LIKE on UUID columns)
+    const restaurants = await getDiscoveryRestaurants();
+    const restaurant = restaurants.find(r => r.id.endsWith(shortId));
+
+    if (!restaurant) return null;
+
+    return restaurant;
 }
