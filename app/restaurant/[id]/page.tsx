@@ -47,7 +47,10 @@ export default async function RestaurantPage({ params }: { params: Promise<{ id:
     const directionsUrl = data.googleUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.name + " " + data.address)}`;
 
     return (
-        <div className="min-h-screen bg-bg-base pb-32 animate-in fade-in duration-300">
+        <div
+            className="min-h-screen bg-bg-base pb-32"
+            style={{ viewTransitionName: 'page-content' }}
+        >
 
             {/* Absolute Back Button */}
             <Link

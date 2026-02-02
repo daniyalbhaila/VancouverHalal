@@ -256,6 +256,41 @@
   }
 }
 
+/* ----- PAGE CONTENT TRANSITIONS (Restaurant Page) ----- */
+/* Slides up from bottom when entering, slides down when leaving */
+
+::view-transition-old(page-content) {
+  animation-name: content-slide-out-down;
+}
+
+::view-transition-new(page-content) {
+  animation-name: content-slide-in-up;
+}
+
+@keyframes content-slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes content-slide-out-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
+
 /* ----- BOTTOM NAV TRANSITIONS ----- */
 /* Named element transitions: slides down when going to restaurant, up when returning */
 
