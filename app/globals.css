@@ -208,3 +208,129 @@
     display: none !important;
   }
 }
+
+/* ============================================
+   VIEW TRANSITIONS API - Native-like Slides
+   ============================================ */
+
+/* Shared timing for all view transitions */
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  /* iOS-like easing */
+}
+
+/* ----- PAGE TRANSITIONS ----- */
+
+/* Forward: page slides in from bottom/right, old page fades and scales down slightly */
+::view-transition-old(root) {
+  animation-name: page-exit-to-back;
+}
+
+::view-transition-new(root) {
+  animation-name: page-enter-from-bottom;
+}
+
+@keyframes page-enter-from-bottom {
+  from {
+    transform: translateY(8%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes page-exit-to-back {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* ----- PAGE CONTENT TRANSITIONS (Restaurant Page) ----- */
+/* Slides up from bottom when entering, slides down when leaving */
+
+::view-transition-old(page-content) {
+  animation-name: content-slide-out-down;
+}
+
+::view-transition-new(page-content) {
+  animation-name: content-slide-in-up;
+}
+
+@keyframes content-slide-in-up {
+  from {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes content-slide-out-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
+
+/* ----- BOTTOM NAV TRANSITIONS ----- */
+/* Named element transitions: slides down when going to restaurant, up when returning */
+
+::view-transition-old(bottom-nav) {
+  animation-name: nav-slide-out;
+}
+
+::view-transition-new(bottom-nav) {
+  animation-name: nav-slide-in;
+}
+
+@keyframes nav-slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes nav-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}

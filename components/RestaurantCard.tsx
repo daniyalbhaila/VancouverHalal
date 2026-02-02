@@ -4,13 +4,22 @@ import { Star, MapPin, Navigation } from 'lucide-react';
 import type { RestaurantCard as RestaurantType } from '@/lib/data';
 import { RestaurantImage } from '@/components/RestaurantImage';
 
+import Link from 'next/link';
+
 export function RestaurantCard({ data }: { data: RestaurantType & { distance?: number } }) {
     return (
         <div
-            className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform"
+            className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform block"
         >
-            {/* Full Background Media */}
-            <div className="absolute inset-0">
+            {/* Absolute Link for Main Click Action - Z-Index 0 */}
+            <Link
+                href={`/restaurant/${data.slug}`}
+                className="absolute inset-0 z-0"
+                aria-label={`View details for ${data.name}`}
+            />
+
+            {/* Full Background Media - Pointer events none to let clicks pass to Link if needed, but z-0 link covers it anyway */}
+            <div className="absolute inset-0 pointer-events-none">
                 <RestaurantImage
                     src={data.image}
                     alt={data.name}
@@ -23,8 +32,8 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90" />
             </div>
 
-            {/* Top Badges */}
-            <div className="absolute top-3 left-3 flex gap-2 z-10">
+            {/* Top Badges - Z-Index 10 to float above Link if interactive, otherwise can be under */}
+            <div className="absolute top-3 left-3 flex gap-2 z-10 pointer-events-none">
                 {data.isOpenNow ? (
                     <div className="px-2 py-0.5 bg-emerald-500/90 backdrop-blur-md rounded-full shadow-sm flex items-center gap-1 border border-emerald-400/20">
                         <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
@@ -37,14 +46,14 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
             </div>
 
             {data.distance && (
-                <div className="absolute top-3 right-3 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90 z-10">
+                <div className="absolute top-3 right-3 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90 z-10 pointer-events-none">
                     <MapPin className="w-3 h-3 text-white" />
                     <span className="text-[10px] font-bold">{data.distance.toFixed(1)} km</span>
                 </div>
             )}
 
             {/* Compact Content Content (Overlay) */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+            <div className="absolute bottom-0 left-0 right-0 p-4 z-20 pointer-events-none">
                 <div className="flex justify-between items-end mb-1">
                     <h3 className="text-xl font-bold text-white font-manrope leading-tight line-clamp-1 drop-shadow-md">
                         {data.name}
@@ -78,15 +87,16 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                         ))}
                     </div>
 
+                    {/* Directions Button - Z-Index 30 + Pointer Events Auto to capture click over Link */}
                     <a
                         href={data.googleUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.name + " " + data.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 pl-2 pr-3 py-1 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-bold border border-white/10 transition-colors"
+                        className="flex items-center gap-1 pl-2 pr-3 py-1.5 bg-zinc-900 hover:bg-zinc-700 text-white rounded-full text-[10px] font-bold transition-colors pointer-events-auto cursor-pointer relative z-30 shadow-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Navigation className="w-3 h-3" />
-                        <span>Go</span>
+                        <span>Directions</span>
                     </a>
                 </div>
             </div>

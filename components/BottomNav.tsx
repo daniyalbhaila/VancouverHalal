@@ -12,6 +12,7 @@ export default function BottomNav() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const isMapView = searchParams.get('view') === 'map';
+    const isRestaurantPage = pathname?.startsWith('/restaurant/');
 
     useEffect(() => {
         router.prefetch('/');
@@ -19,6 +20,9 @@ export default function BottomNav() {
         router.prefetch('/swipe');
         router.prefetch('/saved');
     }, [router]);
+
+    // Don't render null - instead animate out so View Transitions can work
+    // if (isRestaurantPage) return null;
 
     const tabs = [
         { name: 'Explore', href: '/', icon: Compass, isActive: pathname === '/' && !isMapView },
@@ -28,10 +32,20 @@ export default function BottomNav() {
     ];
 
     return (
-        <nav className="fixed bottom-8 left-4 right-4 z-50 flex justify-center pb-safe">
+        <nav
+            className={cn(
+                "fixed bottom-8 left-4 right-4 z-50 flex justify-center pb-safe transition-all duration-300",
+                isRestaurantPage && "pointer-events-none"
+            )}
+        >
             <motion.div
                 initial={{ y: 100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
+                animate={{
+                    y: isRestaurantPage ? 100 : 0,
+                    opacity: isRestaurantPage ? 0 : 1
+                }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                style={{ viewTransitionName: 'bottom-nav' }}
                 className={cn(
                     "flex items-center justify-between px-6 py-3 w-full max-w-[320px]",
                     "bg-[var(--glass-bg)] backdrop-blur-2xl shadow-2xl",

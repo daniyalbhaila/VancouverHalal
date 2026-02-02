@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Enable browser-native View Transitions API for smooth page transitions
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;
