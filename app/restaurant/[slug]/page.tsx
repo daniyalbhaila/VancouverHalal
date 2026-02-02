@@ -49,7 +49,6 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
     return (
         <div
             className="min-h-screen bg-bg-base pb-32"
-            style={{ viewTransitionName: 'page-content' }}
         >
 
             {/* Absolute Back Button */}
@@ -61,7 +60,10 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
             </Link>
 
             {/* --- HERO SECTION --- */}
-            <div className="relative w-full aspect-[2/1] md:aspect-[2.5/1] lg:h-[400px] overflow-hidden">
+            <div
+                className="relative w-full aspect-[2/1] md:aspect-[2.5/1] lg:h-[400px] overflow-hidden"
+                style={{ viewTransitionName: `restaurant-hero-${slug}` }}
+            >
                 <RestaurantImage
                     src={data.image}
                     alt={data.name}

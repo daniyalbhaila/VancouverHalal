@@ -11,6 +11,7 @@ export function RestaurantDetailsSkeleton() {
             {/* Hero Skeleton - Matches exact aspect ratio */}
             <div className="relative w-full aspect-[2/1] md:aspect-[2.5/1] lg:h-[400px]">
                 <Skeleton className="w-full h-full rounded-none" />
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent z-10" />
             </div>
 
             <div className="px-5 -mt-8 relative z-10">
@@ -44,8 +45,9 @@ export function RestaurantDetailsSkeleton() {
                     </div>
 
                     {/* Map Preview Skeleton */}
-                    <div className="rounded-2xl overflow-hidden border border-border/50">
+                    <div className="rounded-2xl overflow-hidden border border-border/50 relative">
                         <Skeleton className="h-[180px] w-full rounded-none" />
+                        <div className="absolute top-0 left-0 right-0 h-[180px] -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent z-10" />
                         <div className="p-4 bg-bg-card">
                             <Skeleton className="h-4 w-3/4 rounded-md mb-3" />
                             <Skeleton className="h-10 w-full rounded-xl" />

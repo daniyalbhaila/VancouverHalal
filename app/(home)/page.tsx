@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { getDiscoveryRestaurants } from '@/lib/data';
 import HomeClient from '@/components/HomeClient';
-import { Loader2 } from 'lucide-react';
+import { DiscoverySkeleton } from '@/components/DiscoverySkeleton';
 import type { Metadata } from 'next';
 
 export const revalidate = 3600;
@@ -18,12 +18,7 @@ export const metadata: Metadata = {
 };
 
 function LoadingFallback() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20">
-      <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
-      <p className="text-zinc-400 text-sm font-medium">Loading restaurants...</p>
-    </div>
-  );
+  return <DiscoverySkeleton />;
 }
 
 export default async function Home() {
