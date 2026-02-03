@@ -16,6 +16,8 @@ type ImageGalleryProps = {
 export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
+    const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fsScrollRef = useRef<HTMLDivElement>(null);
 
@@ -25,13 +27,19 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         if (!el) return;
 
         const handleScroll = () => {
-            const index = Math.round(el.scrollLeft / el.clientWidth);
-            setCurrentIndex(index);
+            // Only update index from main scroll if NOT full screen
+            // (Otherwise the background sync might fight us, though unlikely given the check below)
+            if (!isFullScreen) {
+                const index = Math.round(el.scrollLeft / el.clientWidth);
+                if (index !== currentIndex) {
+                    setCurrentIndex(index);
+                }
+            }
         };
 
         el.addEventListener('scroll', handleScroll, { passive: true });
         return () => el.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [isFullScreen, currentIndex]); // Add dependencies to be safe
 
     // Track scroll position for FULL SCREEN gallery
     useEffect(() => {
@@ -39,16 +47,44 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         if (!el) return;
 
         const handleScroll = () => {
+            // Set scrolling state
+            setIsScrolling(true);
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+            scrollTimeout.current = setTimeout(() => {
+                setIsScrolling(false);
+            }, 100);
+
             const index = Math.round(el.scrollLeft / el.clientWidth);
-            setCurrentIndex(index);
+            if (index !== currentIndex) {
+                setCurrentIndex(index);
+            }
         };
 
         el.addEventListener('scroll', handleScroll, { passive: true });
-        return () => el.removeEventListener('scroll', handleScroll);
-    }, [isFullScreen]);
+        return () => {
+            el.removeEventListener('scroll', handleScroll);
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        };
+    }, [isFullScreen, currentIndex]);
 
-    // Sync position when opening Full Screen
-    // Use useLayoutEffect to prevent visual jump (scroll happens before paint)
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        };
+    }, []);
+
+    // Sync Background Scroll (Main Gallery) when Current Index changes in Full Screen
+    useEffect(() => {
+        if (isFullScreen && scrollRef.current) {
+            scrollRef.current.scrollTo({
+                left: currentIndex * scrollRef.current.clientWidth,
+                behavior: 'instant' // Instant so it's ready when we close
+            });
+        }
+    }, [isFullScreen, currentIndex]);
+
+    // Sync Full Screen Scroll when Opening
     useLayoutEffect(() => {
         if (isFullScreen && fsScrollRef.current) {
             fsScrollRef.current.scrollTo({
@@ -57,16 +93,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             });
         }
     }, [isFullScreen]);
-
-    // Sync position when closing Full Screen (back to main)
-    useEffect(() => {
-        if (!isFullScreen && scrollRef.current) {
-            scrollRef.current.scrollTo({
-                left: currentIndex * scrollRef.current.clientWidth,
-                behavior: 'instant'
-            });
-        }
-    }, [isFullScreen, currentIndex]);
+    // Note: removed [currentIndex] from above deps to avoid re-scrolling if index changes internally
 
     // Prevent scrolling on body when FS is open
     useEffect(() => {
@@ -171,8 +198,8 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                 </div>
 
                 {/* Dots */}
-                {validImages.length < 10 && validImages.length > 1 && (
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+                {validImages.length > 1 && (
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10 pointer-events-none">
                         {validImages.map((_, i) => (
                             <div
                                 key={i}
@@ -180,7 +207,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                     "w-1.5 h-1.5 rounded-full shadow-sm transition-all duration-300",
                                     i === currentIndex
                                         ? "bg-white scale-125"
-                                        : "bg-white/40"
+                                        : "bg-white/50"
                                 )}
                             />
                         ))}
@@ -198,26 +225,15 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm flex flex-col"
+                            className="fixed inset-0 z-[9999] bg-black/95 flex flex-col"
                         >
-                            {/* Top Bar */}
-                            <motion.div
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-50 pointer-events-none"
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setIsFullScreen(false)}
+                                className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full text-white/80 hover:text-white backdrop-blur-md transition-colors"
                             >
-                                <div />
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsFullScreen(false);
-                                    }}
-                                    className="p-2 bg-zinc-800/50 text-white rounded-full hover:bg-zinc-700 transition-colors pointer-events-auto mt-2 mr-2"
-                                >
-                                    <X className="w-6 h-6" />
-                                </button>
-                            </motion.div>
+                                <X className="w-6 h-6" />
+                            </button>
 
                             {/* FS Scroll Container */}
                             <div
@@ -229,7 +245,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                 {validImages.map((src, i) => (
                                     <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
                                         <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
-                                            {i === currentIndex ? (
+                                            {i === currentIndex && !isScrolling ? (
                                                 <motion.div
                                                     layoutId={`image-${src}-${i}`}
                                                     className="relative w-full h-full flex items-center justify-center p-0 md:p-8"
@@ -246,7 +262,8 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                                 </motion.div>
                                             ) : (
                                                 // Non-active images just render normally
-                                                <div className="relative w-full h-full p-0 md:p-8">
+                                                // OR if scrolling, render normally to avoid layout jumps
+                                                <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
                                                     <RestaurantImage
                                                         src={src}
                                                         alt={`${alt} full screen ${i + 1}`}
