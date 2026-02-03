@@ -3,11 +3,13 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { ScrollReset } from '@/components/ScrollReset';
 
 // Loading skeleton matching the actual restaurant detail page layout
 export default function RestaurantLoading() {
     return (
         <div className="min-h-screen bg-bg-base pb-32">
+            <ScrollReset />
             {/* Back Button - Fixed like the real page */}
             <Link
                 href="/"
