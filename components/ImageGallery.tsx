@@ -200,6 +200,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                 alt={`${alt} photo ${i + 1}`}
                                 seed={alt}
                                 priority={i === 0}
+                                quality={60}
                                 sizes="(max-width: 768px) 100vw, 1200px"
                                 className="bg-zinc-100 dark:bg-zinc-900 object-cover w-full h-full"
                             />
@@ -282,6 +283,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                                     seed={alt}
                                                     className="object-contain"
                                                     priority={i === currentIndex} // Only prioritize current
+                                                    quality={60}
                                                 />
                                             </div>
                                         </div>
