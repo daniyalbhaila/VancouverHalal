@@ -215,7 +215,7 @@ export default function ReportIssueClient() {
                       }
                     }
 
-                    window.location.href = '/suggest/thanks';
+                    window.location.href = '/report/thanks';
                   } catch (error) {
                     setErrors('Submission failed. Please try again.');
                   } finally {
