@@ -5,6 +5,26 @@ const nextConfig: NextConfig = {
     // Enable browser-native View Transitions API for smooth page transitions
     viewTransition: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleapis.com',
+      },
+      {
+        protocol: 'http', // Google sometimes serves http for t3.gstatic
+        hostname: '*.gstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.gstatic.com',
+      }
+    ],
+  },
 };
 
 export default nextConfig;
