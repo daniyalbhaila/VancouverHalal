@@ -1,12 +1,29 @@
-import { getRestaurantBySlug } from "@/lib/data";
+import { getRestaurantBySlug, getAllRestaurantSlugs } from "@/lib/data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Star, MapPin, Globe, Phone, Navigation } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Globe, Phone, Navigation, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Metadata } from 'next';
 import { RestaurantImage } from "@/components/RestaurantImage";
 import { HoursDisplay } from "@/components/HoursDisplay";
 import { LocationMap } from "@/components/LocationMap";
+import { TrustBadge } from "@/components/TrustBadge";
+import { SourceDisclaimer } from "@/components/SourceDisclaimer";
+import { DietaryFlags, type DietaryInfo } from "@/components/DietaryFlags";
+import { ScrollReset } from "@/components/ScrollReset";
+
+// --- ISR Configuration ---
+// Revalidate this page every hour (3600 seconds)
+export const revalidate = 3600;
+
+// --- Static Params Generation ---
+// This tells Next.js which slugs to pre-build at build time
+export async function generateStaticParams() {
+    const slugs = await getAllRestaurantSlugs();
+    return slugs.map((s) => ({
+        slug: s.slug,
+    }));
+}
 
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -14,25 +31,124 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const restaurant = await getRestaurantBySlug(slug);
 
     if (!restaurant) {
-        return { title: 'Restaurant Not Found' };
+        return {
+            title: 'Restaurant Not Found | Vancouver Halal',
+        };
     }
 
     return {
-        title: `${restaurant.name} - Halal Vancouver`,
-        description: `Visit ${restaurant.name} in Vancouver. Rated ${restaurant.rating}/5. ${restaurant.categories.join(', ')}.`,
-        openGraph: {
-            images: restaurant.image ? [restaurant.image] : [],
-        },
+        title: `${restaurant.name} | Vancouver Halal`,
+        description: `Halal dining guide for ${restaurant.name}. View hours, location, and halal verification details.`,
     };
 }
 
-export default async function RestaurantPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function RestaurantPage({
+    params,
+    searchParams
+}: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ mock?: string }>;
+}) {
     const { slug } = await params;
-    const data = await getRestaurantBySlug(slug);
+    const { mock } = await searchParams;
+    const showMocks = mock === 'true';
+
+    let data = await getRestaurantBySlug(slug);
+
+    // --- MOCK SLUG HANDLING ---
+    // If this is a mock slug and no real data, create mock data (dev only)
+    if (!data && slug.endsWith('-mock') && process.env.NODE_ENV === 'development') {
+        const mockDataMap: Record<string, any> = {
+            'paramount-fine-foods-mock': {
+                id: 'mock-certified',
+                slug: 'paramount-fine-foods-mock',
+                name: "✅ Paramount Fine Foods",
+                location: { lat: 49.2827, lng: -123.1207 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Middle Eastern', 'BBQ'],
+                rating: 4.9,
+                reviews: 2500,
+                address: '123 Mock St, Vancouver, BC',
+                price: '$$',
+                isOpenNow: true,
+                googleUrl: 'https://maps.google.com',
+                phone: '+1-604-555-1234',
+                website: 'https://paramountfinefoods.com',
+                openingHours: null,
+                halalStatus: 'certified'
+            },
+            'manouseh-mock': {
+                id: 'mock-community',
+                slug: 'manouseh-mock',
+                name: "👥 Manoush'eh",
+                location: { lat: 49.2800, lng: -123.1100 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Lebanese', 'Bakery'],
+                rating: 4.7,
+                reviews: 1200,
+                address: '456 Mock Ave, Vancouver, BC',
+                price: '$$',
+                isOpenNow: true,
+                googleUrl: 'https://maps.google.com',
+                phone: '+1-604-555-5678',
+                website: null,
+                openingHours: null,
+                halalStatus: 'community_listed'
+            },
+            'earls-kitchen-mock': {
+                id: 'mock-verbal',
+                slug: 'earls-kitchen-mock',
+                name: "💬 Earls Kitchen (Verbal)",
+                location: { lat: 49.2750, lng: -123.1300 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Burgers', 'Steak'],
+                rating: 4.3,
+                reviews: 800,
+                address: '789 Mock Blvd, Vancouver, BC',
+                price: '$$$',
+                isOpenNow: true,
+                googleUrl: 'https://maps.google.com',
+                phone: '+1-604-555-9999',
+                website: 'https://earls.ca',
+                openingHours: null,
+                halalStatus: 'verbally_confirmed'
+            }
+        };
+        data = mockDataMap[slug] || null;
+    }
+    // ---------------------------
 
     if (!data) {
         notFound();
     }
+
+    // --- MOCK DIETARY INFO INJECTION (Verify Design) ---
+    // Trigger based on slug pattern, not showMocks flag (so navigation works)
+    let mockDietaryInfo: DietaryInfo | undefined;
+
+    if (slug === 'paramount-fine-foods-mock') {
+        // Certified / Strict
+        mockDietaryInfo = {
+            alcohol: 'none',
+            pork: 'none',
+            meatSource: 'hand_slaughtered'
+        };
+    } else if (slug === 'manouseh-mock') {
+        // Community / Standard
+        mockDietaryInfo = {
+            alcohol: 'none',
+            pork: 'none',
+            meatSource: 'mixed'
+        };
+    } else if (slug === 'earls-kitchen-mock') {
+        // Verbal / Mixed - Shows warnings
+        mockDietaryInfo = {
+            alcohol: 'served',
+            pork: 'kitchen_shared',
+            meatSource: 'machine_cut'
+        };
+    }
+    // ----------------------------------------------------
 
     // Categories helper - guard against empty
     const categories = data.categories.slice(0, 3).join(" • ");
@@ -50,6 +166,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
         <div
             className="min-h-screen bg-bg-base pb-32"
         >
+            <ScrollReset />
 
             {/* Absolute Back Button */}
             <Link
@@ -94,10 +211,13 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
 
                     {/* Meta Row */}
                     {metaLine && (
-                        <div className="text-sm text-text-secondary font-medium">
+                        <div className="text-sm text-text-secondary font-medium mb-2">
                             {metaLine}
                         </div>
                     )}
+
+                    {/* Trust Badge */}
+                    <TrustBadge status={data.halalStatus} />
                 </div>
 
                 {/* --- ACTIONS GRID (Desktop/Tablet) --- */}
@@ -133,6 +253,17 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
                         googleMapsUrl={directionsUrl}
                         rating={data.rating}
                     />
+
+                    {/* Source Disclaimer */}
+                    <SourceDisclaimer variant="detail" />
+
+                    {/* Dietary Details */}
+                    {mockDietaryInfo && (
+                        <div className="mt-6 animate-in slide-in-from-bottom-5 fade-in duration-700 delay-200">
+                            <h3 className="text-lg font-bold font-manrope text-text-primary mb-3">Halal Details</h3>
+                            <DietaryFlags info={mockDietaryInfo} />
+                        </div>
+                    )}
 
                 </div>
             </div>

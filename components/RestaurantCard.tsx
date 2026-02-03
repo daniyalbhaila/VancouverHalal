@@ -3,6 +3,7 @@
 import { Star, MapPin, Navigation } from 'lucide-react';
 import type { RestaurantCard as RestaurantType } from '@/lib/data';
 import { RestaurantImage } from '@/components/RestaurantImage';
+import { TrustBadge } from '@/components/TrustBadge';
 
 import Link from 'next/link';
 
@@ -46,12 +47,25 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                 )}
             </div>
 
-            {data.distance && (
-                <div className="absolute top-3 right-3 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90 z-10 pointer-events-none">
-                    <MapPin className="w-3 h-3 text-white" />
-                    <span className="text-[10px] font-bold">{data.distance.toFixed(1)} km</span>
-                </div>
-            )}
+            {/* Top Right: Distance + Trust Shield */}
+            <div className="absolute top-3 right-3 flex items-center gap-2 z-10 pointer-events-none">
+                {/* Trust Badge - Compact with text for clarity */}
+                {data.halalStatus && (
+                    <div className="pointer-events-auto">
+                        <TrustBadge
+                            status={data.halalStatus}
+                            variant="compact"
+                        />
+                    </div>
+                )}
+
+                {data.distance && (
+                    <div className="px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90">
+                        <MapPin className="w-3 h-3 text-white" />
+                        <span className="text-[10px] font-bold">{data.distance.toFixed(1)} km</span>
+                    </div>
+                )}
+            </div>
 
             {/* Compact Content Content (Overlay) */}
             <div className="absolute bottom-0 left-0 right-0 p-4 z-20 pointer-events-none">
@@ -77,7 +91,7 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                     <span className="truncate flex-1 opacity-80">{data.address.split(',')[0]}</span>
                 </div>
 
-                {/* Footer / Directions */}
+
                 <div className="flex items-center justify-between">
                     {/* Tags (scrolling) */}
                     <div className="flex gap-1.5 overflow-hidden mask-gradient-right max-w-[70%]">
