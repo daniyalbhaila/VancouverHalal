@@ -68,7 +68,7 @@ async function main() {
 
     // 5. Update Supabase
     let updatedCount = 0;
-    for (const item of items) {
+    for (const item of items as any[]) {
         const imageUrl = item.imageUrls?.[0]; // Get the first image
 
         // Match back to our restaurant record
