@@ -92,18 +92,7 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="flex items-center justify-between mb-4 px-1">
-                            <h3 className="text-xl font-bold font-manrope">
-                                Guest Reviews
-                            </h3>
-                            <a
-                                href={props.googleUrl}
-                                target="_blank"
-                                className="text-xs font-bold text-primary hover:underline"
-                            >
-                                View on Google Maps
-                            </a>
-                        </div>
+
 
                         <ReviewsList
                             reviews={props.reviews}
