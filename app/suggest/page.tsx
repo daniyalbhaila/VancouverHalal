@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 
 export default function SuggestPage() {
@@ -12,6 +12,7 @@ export default function SuggestPage() {
   const [halalStatus, setHalalStatus] = useState('');
   const [errors, setErrors] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     setErrors(null);
@@ -67,54 +68,13 @@ export default function SuggestPage() {
         </div>
 
         <form
+          ref={formRef}
           name="suggest-spot"
           method="POST"
           action="/"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
-          onSubmit={async (event) => {
-            if (step < 2) {
-              event.preventDefault();
-              if (step === 0 && !validateBasics()) return;
-              setStep((prev) => Math.min(prev + 1, 2));
-              return;
-            }
-
-            event.preventDefault();
-            if (isSubmitting) return;
-            setIsSubmitting(true);
-            setErrors(null);
-
-            const form = event.currentTarget;
-            const formData = new FormData(form);
-            const params = new URLSearchParams();
-            formData.forEach((value, key) => {
-              if (typeof value === 'string') params.append(key, value);
-            });
-
-            const controller = new AbortController();
-            const timeoutId = window.setTimeout(() => controller.abort(), 8000);
-
-            try {
-              const response = await fetch('/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString(),
-                signal: controller.signal,
-              });
-
-              if (!response.ok) {
-                throw new Error('Submission failed');
-              }
-
-              window.location.href = '/suggest/thanks';
-            } catch (error) {
-              setErrors('Submission failed. Please try again.');
-            } finally {
-              window.clearTimeout(timeoutId);
-              setIsSubmitting(false);
-            }
-          }}
+          onSubmit={(event) => event.preventDefault()}
           className="mt-6 space-y-4"
         >
           <input type="hidden" name="form-name" value="suggest-spot" />
@@ -264,23 +224,59 @@ export default function SuggestPage() {
             >
               Back
             </button>
-            {step < 2 ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98]"
-              >
-                Continue
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit suggestion'}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={async () => {
+                if (step < 2) {
+                  handleNext();
+                  return;
+                }
+
+                if (isSubmitting) return;
+                setIsSubmitting(true);
+                setErrors(null);
+
+                const form = formRef.current;
+                if (!form) {
+                  setErrors('Submission failed. Please try again.');
+                  setIsSubmitting(false);
+                  return;
+                }
+
+                const formData = new FormData(form);
+                const params = new URLSearchParams();
+                formData.forEach((value, key) => {
+                  if (typeof value === 'string') params.append(key, value);
+                });
+
+                const controller = new AbortController();
+                const timeoutId = window.setTimeout(() => controller.abort(), 8000);
+
+                try {
+                  const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString(),
+                    signal: controller.signal,
+                  });
+
+                  if (!response.ok) {
+                    throw new Error('Submission failed');
+                  }
+
+                  window.location.href = '/suggest/thanks';
+                } catch (error) {
+                  setErrors('Submission failed. Please try again.');
+                } finally {
+                  window.clearTimeout(timeoutId);
+                  setIsSubmitting(false);
+                }
+              }}
+              disabled={isSubmitting}
+              className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70"
+            >
+              {step < 2 ? 'Continue' : isSubmitting ? 'Submitting...' : 'Submit suggestion'}
+            </button>
           </div>
         </form>
       </div>

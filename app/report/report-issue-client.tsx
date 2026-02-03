@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function ReportIssueClient() {
   const searchParams = useSearchParams();
@@ -13,6 +13,7 @@ export default function ReportIssueClient() {
   const [issueType, setIssueType] = useState('');
   const [errors, setErrors] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     setErrors(null);
@@ -50,58 +51,13 @@ export default function ReportIssueClient() {
         </div>
 
         <form
+          ref={formRef}
           name="report-issue"
           method="POST"
           action="/"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
-          onSubmit={async (event) => {
-            if (step < 2) {
-              event.preventDefault();
-              if (step === 0 && !issueType) {
-                setErrors('Please pick the issue type.');
-                return;
-              }
-              setErrors(null);
-              setStep((prev) => Math.min(prev + 1, 2));
-              return;
-            }
-
-            event.preventDefault();
-            if (isSubmitting) return;
-            setIsSubmitting(true);
-            setErrors(null);
-
-            const form = event.currentTarget;
-            const formData = new FormData(form);
-            const params = new URLSearchParams();
-            formData.forEach((value, key) => {
-              if (typeof value === 'string') params.append(key, value);
-            });
-
-            const controller = new AbortController();
-            const timeoutId = window.setTimeout(() => controller.abort(), 8000);
-
-            try {
-              const response = await fetch('/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString(),
-                signal: controller.signal,
-              });
-
-              if (!response.ok) {
-                throw new Error('Submission failed');
-              }
-
-              window.location.href = '/suggest/thanks';
-            } catch (error) {
-              setErrors('Submission failed. Please try again.');
-            } finally {
-              window.clearTimeout(timeoutId);
-              setIsSubmitting(false);
-            }
-          }}
+          onSubmit={(event) => event.preventDefault()}
           className="mt-6 space-y-4"
         >
           <input type="hidden" name="form-name" value="report-issue" />
@@ -222,7 +178,48 @@ export default function ReportIssueClient() {
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
+                onClick={async () => {
+                  if (isSubmitting) return;
+                  setIsSubmitting(true);
+                  setErrors(null);
+
+                  const form = formRef.current;
+                  if (!form) {
+                    setErrors('Submission failed. Please try again.');
+                    setIsSubmitting(false);
+                    return;
+                  }
+
+                  const formData = new FormData(form);
+                  const params = new URLSearchParams();
+                  formData.forEach((value, key) => {
+                    if (typeof value === 'string') params.append(key, value);
+                  });
+
+                  const controller = new AbortController();
+                  const timeoutId = window.setTimeout(() => controller.abort(), 8000);
+
+                  try {
+                    const response = await fetch('/', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                      body: params.toString(),
+                      signal: controller.signal,
+                    });
+
+                    if (!response.ok) {
+                      throw new Error('Submission failed');
+                    }
+
+                    window.location.href = '/suggest/thanks';
+                  } catch (error) {
+                    setErrors('Submission failed. Please try again.');
+                  } finally {
+                    window.clearTimeout(timeoutId);
+                    setIsSubmitting(false);
+                  }
+                }}
                 disabled={isSubmitting}
                 className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70"
               >
