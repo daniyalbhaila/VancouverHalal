@@ -9,6 +9,7 @@ type RestaurantImageProps = {
   seed: string;
   className?: string;
   priority?: boolean;
+  fetchPriority?: 'high' | 'low' | 'auto';
   sizes?: string;
   quality?: number;
   fallbackTextClassName?: string;
@@ -21,6 +22,7 @@ export function RestaurantImage({
   seed,
   className,
   priority = false,
+  fetchPriority,
   sizes = '100vw',
   quality,
   fallbackTextClassName,
@@ -60,6 +62,7 @@ export function RestaurantImage({
       className={cn('object-cover', className)}
       sizes={sizes}
       priority={priority}
+      fetchPriority={fetchPriority}
       quality={quality}
       referrerPolicy="no-referrer"
     />
