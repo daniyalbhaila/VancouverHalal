@@ -49,45 +49,64 @@ const statusConfig = {
     }
 };
 
+const statusDescriptions = {
+    certified: "Verified by HIC Canada. Click to confirm.",
+    muslim_owned: "Owned by Muslims. Generally considered reliable.",
+    community_listed: "Sourced from public lists and user submissions. Verify accordingly.",
+    verbally_confirmed: "Staff confirmed Halal status. We recommend verifying yourself.",
+    unverified: "Halal status is unverified. Use caution."
+};
+
 export function TrustBadge({ status, variant = 'default', className }: TrustBadgeProps) {
     const config = statusConfig[status] || statusConfig.community_listed;
     const Icon = config.icon;
+    const isCertified = status === 'certified';
+    const description = statusDescriptions[status] || statusDescriptions.community_listed;
 
-    if (variant === 'icon-only') {
-        return (
-            <div className={cn("flex items-center justify-center w-5 h-5 rounded-full shadow-sm backdrop-blur-md", config.bg, config.border, className)} title={config.label}>
-                <Icon className={cn("w-3 h-3", config.color)} strokeWidth={3} />
-            </div>
-        );
-    }
-
-    if (variant === 'compact') {
-        // Short labels for cards
-        const shortLabel = {
-            certified: 'Certified',
-            community_listed: 'Community Listed',
-            verbally_confirmed: 'Verbal Confirmation',
-            muslim_owned: 'Muslim Owned',
-            unverified: 'Unverified'
-        }[status] || 'Listed';
-
-        return (
-            <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border shadow-sm backdrop-blur-md", config.bg, config.border, className)}>
-                <Icon className={cn("w-3 h-3", config.color)} strokeWidth={2.5} />
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", config.color)}>
-                    {shortLabel}
+    // Common Inner Content
+    const Content = (
+        <>
+            <Icon className={cn(variant === 'icon-only' ? "w-3 h-3" : "w-3 h-3 sm:w-4 sm:h-4", config.color)} strokeWidth={variant === 'compact' ? 2.5 : 2} />
+            {variant !== 'icon-only' && (
+                <span className={cn(
+                    config.color,
+                    variant === 'compact' ? "text-[10px] font-bold uppercase tracking-wider" : "text-xs font-semibold"
+                )}>
+                    {variant === 'compact' ?
+                        (status === 'community_listed' ? 'Listed' : config.label.replace('Halal', '').trim())
+                        : config.label}
                 </span>
-            </div>
+            )}
+        </>
+    );
+
+    const containerClasses = cn(
+        "flex items-center rounded-full shadow-sm backdrop-blur-md transition-transform active:scale-95",
+        config.bg,
+        config.border,
+        variant === 'icon-only' ? "justify-center w-5 h-5 border" : (variant === 'compact' ? "gap-1 px-2 py-0.5 border" : "gap-1.5 px-3 py-1 border"),
+        isCertified && variant !== 'icon-only' ? "cursor-pointer hover:brightness-95" : "",
+        className
+    );
+
+    if (isCertified) {
+        return (
+            <a
+                href="https://hiccanada.ca/certified/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={containerClasses}
+                title={description}
+                onClick={(e) => e.stopPropagation()} // Prevent card click
+            >
+                {Content}
+            </a>
         );
     }
 
-    // Default variant (for detail page)
     return (
-        <div className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border", config.bg, config.border, className)}>
-            <Icon className={cn("w-4 h-4", config.color)} />
-            <span className={cn("text-xs font-semibold", config.color)}>
-                {config.label}
-            </span>
+        <div className={containerClasses} title={description}>
+            {Content}
         </div>
     );
 }

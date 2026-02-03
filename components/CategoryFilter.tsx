@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { Clock } from 'lucide-react';
+import { Clock, ShieldCheck } from 'lucide-react';
 import { useRef } from 'react';
 
 interface CategoryFilterProps {
@@ -9,10 +9,20 @@ interface CategoryFilterProps {
     onSelect: (category: string) => void;
     showOpenOnly: boolean;
     onToggleOpen: (open: boolean) => void;
+    showCertifiedOnly: boolean;
+    onToggleCertified: (active: boolean) => void;
     availableCategories: string[];
 }
 
-export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen, availableCategories }: CategoryFilterProps) {
+export function CategoryFilter({
+    selected,
+    onSelect,
+    showOpenOnly,
+    onToggleOpen,
+    showCertifiedOnly,
+    onToggleCertified,
+    availableCategories
+}: CategoryFilterProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     return (
@@ -21,6 +31,20 @@ export function CategoryFilter({ selected, onSelect, showOpenOnly, onToggleOpen,
                 ref={scrollRef}
                 className="flex gap-2 overflow-x-auto overflow-y-hidden no-scrollbar px-4 mask-gradient-right items-center touch-pan-x"
             >
+                {/* Certified Toggle - Primary Filter */}
+                <button
+                    onClick={() => onToggleCertified(!showCertifiedOnly)}
+                    className={cn(
+                        "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0",
+                        showCertifiedOnly
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105"
+                            : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:bg-[var(--glass-bg)]"
+                    )}
+                >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Certified Only
+                </button>
+
                 {/* Open Now Toggle */}
                 <button
                     onClick={() => onToggleOpen(!showOpenOnly)}

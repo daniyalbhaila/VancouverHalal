@@ -54,6 +54,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     // Filters
     const [selectedCategory, setSelectedCategory] = useState("");
     const [showOpenOnly, setShowOpenOnly] = useState(false);
+    const [showCertifiedOnly, setShowCertifiedOnly] = useState(false);
     const [radius, setRadius] = useState(20); // Default 20km
     const [sortBy, setSortBy] = useState<'recommended' | 'distance' | 'rating'>('recommended'); // Default to recommended
     const [showFilters, setShowFilters] = useState(false);
@@ -160,6 +161,11 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             result = result.filter(r => r.isOpenNow);
         }
 
+        // 2.5 Filter by Certified
+        if (showCertifiedOnly) {
+            result = result.filter(r => r.halalStatus === 'certified');
+        }
+
         // 3. Filter by Radius (only if location is known)
         if (location && radius <= 50) {
             result = result.filter(r => (r.distance || 0) <= radius);
@@ -187,7 +193,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         });
 
         return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams, showMocks, mockRestaurants]);
+    }, [selectedCategory, showOpenOnly, showCertifiedOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams, showMocks, mockRestaurants]);
 
     // Derive Available Categories from current "scope" (Radius + OpenNow)
     // We do NOT filter by 'selectedCategory' here, so the user can switch categories
@@ -284,6 +290,8 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                     onSelect={setSelectedCategory}
                     showOpenOnly={showOpenOnly}
                     onToggleOpen={setShowOpenOnly}
+                    showCertifiedOnly={showCertifiedOnly}
+                    onToggleCertified={setShowCertifiedOnly}
                     availableCategories={availableCategories}
                 />
 
@@ -400,6 +408,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                                 onClick={() => {
                                     setSelectedCategory("");
                                     setShowOpenOnly(false);
+                                    setShowCertifiedOnly(false);
                                     setRadius(50);
                                 }}
                                 className="px-4 py-2 bg-zinc-900 text-white rounded-full text-sm font-bold"

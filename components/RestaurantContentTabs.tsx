@@ -66,7 +66,7 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                             <div className="flex items-center justify-between">
                                 <TrustBadge status={props.halalStatus} />
                             </div>
-                            <SourceDisclaimer className="pl-1" />
+                            <SourceDisclaimer className="pl-1" status={props.halalStatus} />
                         </div>
 
                         {/* Hours */}
