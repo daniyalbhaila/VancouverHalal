@@ -102,15 +102,6 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     }, [isFullScreen]);
     // Note: removed [currentIndex] from above deps to avoid re-scrolling if index changes internally
 
-    // Reset scroll tracking when opening
-    useEffect(() => {
-        if (isFullScreen) {
-            setOpeningIndex(currentIndex);
-            setHasScrolled(false);
-            setIsClosing(false);
-        }
-    }, [isFullScreen]); // Only trigger on open toggle
-
     // Prevent scrolling on body when FS is open
     useEffect(() => {
         if (isFullScreen) {
@@ -168,6 +159,9 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         // Center -> Action
         else {
             if (isMain) {
+                setOpeningIndex(currentIndex);
+                setHasScrolled(false);
+                setIsClosing(false);
                 setIsFullScreen(true);
             } else {
                 // In Full Screen, center tap closes
