@@ -10,6 +10,7 @@ import { LocationMap } from "@/components/LocationMap";
 import { TrustBadge } from "@/components/TrustBadge";
 import { SourceDisclaimer } from "@/components/SourceDisclaimer";
 import { DietaryFlags, type DietaryInfo } from "@/components/DietaryFlags";
+import { ScrollReset } from "@/components/ScrollReset";
 
 // --- ISR Configuration ---
 // Revalidate this page every hour (3600 seconds)
@@ -165,6 +166,7 @@ export default async function RestaurantPage({
         <div
             className="min-h-screen bg-bg-base pb-32"
         >
+            <ScrollReset />
 
             {/* Absolute Back Button */}
             <Link
