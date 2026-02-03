@@ -57,6 +57,8 @@ export default function BottomNav() {
                     <Link
                         key={tab.name}
                         href={tab.href}
+                        aria-label={tab.name}
+                        aria-current={tab.isActive ? 'page' : undefined}
                         className="relative flex flex-col items-center justify-center w-12 h-12"
                     >
                         {tab.isActive && (

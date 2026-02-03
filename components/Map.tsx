@@ -122,6 +122,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                                     seed={restaurant.categories[0] || restaurant.name}
                                     sizes="320px"
                                     fallbackTextClassName="text-4xl"
+                                    quality={60}
                                 />
 
                                 {/* Gradient Overlays - matches home cards */}

@@ -130,6 +130,7 @@ const CardContent = ({ restaurant }: { restaurant: RestaurantWithDistance }) => 
                     seed={restaurant.categories[0] || restaurant.name}
                     className="pointer-events-none"
                     sizes="(max-width: 768px) 100vw, 600px"
+                    quality={70}
                 />
 
                 {/* Cinematic overlay */}

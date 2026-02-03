@@ -5,7 +5,7 @@ import { RestaurantCard } from '@/components/RestaurantCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { Loader2, SlidersHorizontal, MapPin } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
@@ -38,9 +38,12 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         }
     }, []);
 
-    const { location, loading: locationLoading } = useLocation();
+    const { location, loading: locationLoading, requestLocation, error: locationError } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
     const [timeTick, setTimeTick] = useState(0);
+    const [visibleCount, setVisibleCount] = useState(24);
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const hasPromptedLocation = useRef(false);
 
     // Sync view with URL param on mount and updates
     useEffect(() => {
@@ -66,6 +69,17 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const [radius, setRadius] = useState(20); // Default 20km
     const [sortBy, setSortBy] = useState<'recommended' | 'distance' | 'rating'>('recommended'); // Default to recommended
     const [showFilters, setShowFilters] = useState(false);
+
+    useEffect(() => {
+        setVisibleCount(24);
+    }, [selectedCategory, showOpenOnly, showCertifiedOnly, radius, sortBy, view]);
+
+    useEffect(() => {
+        if (hasPromptedLocation.current) return;
+        if (location || locationLoading || locationError) return;
+        hasPromptedLocation.current = true;
+        requestLocation();
+    }, [location, locationLoading, locationError, requestLocation]);
 
     // We no longer need an initial fetch effect because data is passed in!
     // But we still need to derive distance when location becomes available.
@@ -203,6 +217,31 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         return result;
     }, [selectedCategory, showOpenOnly, showCertifiedOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams, showMocks, mockRestaurants]);
 
+    const visibleRestaurants = useMemo(() => {
+        return filteredRestaurants.slice(0, visibleCount);
+    }, [filteredRestaurants, visibleCount]);
+
+    const hasMore = filteredRestaurants.length > visibleCount;
+
+    useEffect(() => {
+        if (!hasMore || view !== 'list') return;
+        const target = loadMoreRef.current;
+        if (!target) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                if (entry?.isIntersecting) {
+                    setVisibleCount((count) => Math.min(count + 24, filteredRestaurants.length));
+                }
+            },
+            { rootMargin: '400px 0px' }
+        );
+
+        observer.observe(target);
+        return () => observer.disconnect();
+    }, [hasMore, filteredRestaurants.length, view]);
+
     // Derive Available Categories from current "scope" (Radius + OpenNow)
     // We do NOT filter by 'selectedCategory' here, so the user can switch categories
     const availableCategories = useMemo(() => {
@@ -312,7 +351,15 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                         ) : location ? (
                             <span>Within <span className="font-bold text-[var(--text-primary)]">{radius > 50 ? 'Unlimited' : `${radius}km`}</span></span>
                         ) : (
-                            <span className="text-amber-500">Location needed for distance</span>
+                            <>
+                                <span className="text-amber-600">{locationError ? 'Location blocked' : 'Location needed'}</span>
+                                <button
+                                    onClick={requestLocation}
+                                    className="text-amber-700 font-semibold hover:underline"
+                                >
+                                    Enable
+                                </button>
+                            </>
                         )}
                     </div>
 
@@ -397,14 +444,14 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 {/* Show loading state until location is resolved */}
                 {locationLoading ? (
                     <div className="space-y-3">
-                        <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2 animate-pulse">Finding nearby spots...</p>
+                        <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2 animate-pulse">Finding nearby spots...</p>
                         {Array.from({ length: 3 }).map((_, i) => (
                             <RestaurantCardSkeleton key={i} />
                         ))}
                     </div>
                 ) : filteredRestaurants.length > 0 ? (
                     <AnimatePresence mode="popLayout">
-                        {filteredRestaurants.map((restaurant, index) => (
+                        {visibleRestaurants.map((restaurant, index) => (
                             <motion.div
                                 key={restaurant.id}
                                 layout
@@ -416,13 +463,13 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                             >
                                 <RestaurantCard
                                     data={{ ...restaurant, distance: restaurant.distance ?? undefined }}
-                                    priority={index < 4}
+                                    priority={index < 2}
                                 />
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 ) : (
-                    <div className="text-center py-20 text-zinc-400">
+                    <div className="text-center py-20 text-zinc-500">
                         <p className="mb-4">No match found inside {radius}km.</p>
                         <div className="flex flex-col gap-2 items-center">
                             <button
@@ -447,10 +494,17 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 )}
 
                 {/* End of list state */}
-                {filteredRestaurants.length > 0 && (
+                {filteredRestaurants.length > 0 && hasMore && view === 'list' && (
+                    <div className="py-6">
+                        <div ref={loadMoreRef} className="h-6" />
+                        <p className="text-center text-xs text-[var(--text-secondary)]">Loading more…</p>
+                    </div>
+                )}
+
+                {filteredRestaurants.length > 0 && !hasMore && (
                     <div className="text-center py-8">
                         <div className="inline-block w-12 h-1 bg-zinc-200 rounded-full mb-4"></div>
-                        <p className="text-zinc-400 text-sm font-medium mb-2">You've reached the end</p>
+                        <p className="text-zinc-500 text-sm font-medium mb-2">You've reached the end</p>
                         <SourceDisclaimer variant="footer" />
                     </div>
                 )}

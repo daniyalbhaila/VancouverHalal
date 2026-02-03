@@ -33,8 +33,9 @@ export function RestaurantCard({
                     alt={data.name}
                     seed={data.categories[0] || data.name}
                     className="transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 500px"
+                    sizes="(max-width: 640px) calc(100vw - 2rem), 420px"
                     priority={priority}
+                    quality={60}
                 />
 
                 {/* Gradient Overlays for Readability - Stronger bottom scrim */}

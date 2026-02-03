@@ -10,6 +10,7 @@ type RestaurantImageProps = {
   className?: string;
   priority?: boolean;
   sizes?: string;
+  quality?: number;
   fallbackTextClassName?: string;
   fallbackClassName?: string;
 };
@@ -21,6 +22,7 @@ export function RestaurantImage({
   className,
   priority = false,
   sizes = '100vw',
+  quality,
   fallbackTextClassName,
   fallbackClassName,
 }: RestaurantImageProps) {
@@ -58,6 +60,7 @@ export function RestaurantImage({
       className={cn('object-cover', className)}
       sizes={sizes}
       priority={priority}
+      quality={quality}
       referrerPolicy="no-referrer"
     />
   );

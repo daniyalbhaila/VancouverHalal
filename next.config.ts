@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     viewTransition: true,
   },
   images: {
+    qualities: [60, 70, 75],
     remotePatterns: [
       {
         protocol: 'https',
