@@ -25,6 +25,16 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const fsScrollRef = useRef<HTMLDivElement>(null);
 
+    // Initial Scroll Position Callback
+    // This runs when the ref attaches, allowing us to set scrollLeft BEFORE paint/animation
+    const setFsScrollRef = (node: HTMLDivElement | null) => {
+        fsScrollRef.current = node;
+        if (node && isFullScreen) {
+            // Direct scroll immediately
+            node.scrollLeft = currentIndex * node.clientWidth;
+        }
+    };
+
     // Track scroll position for MAIN gallery
     useEffect(() => {
         const el = scrollRef.current;
@@ -72,7 +82,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             el.removeEventListener('scroll', handleScroll);
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
         };
-    }, [isFullScreen, currentIndex]);
+    }, [isFullScreen, currentIndex]); // Check these deps carefully. Re-attaching listener is fine.
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -91,16 +101,18 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         }
     }, [isFullScreen, currentIndex]);
 
-    // Sync Full Screen Scroll when Opening
-    useLayoutEffect(() => {
-        if (isFullScreen && fsScrollRef.current) {
-            fsScrollRef.current.scrollTo({
-                left: currentIndex * fsScrollRef.current.clientWidth,
-                behavior: 'instant'
-            });
+    // Remove the old useLayoutEffect that did the initial scroll
+    // We do it in the ref callback now.
+
+    // Reset scroll tracking when opening
+    useEffect(() => {
+        if (isFullScreen) {
+            // Force scroll on mount just in case ref callback missed it (e.g. resize)
+            if (fsScrollRef.current) {
+                fsScrollRef.current.scrollLeft = currentIndex * fsScrollRef.current.clientWidth;
+            }
         }
-    }, [isFullScreen]);
-    // Note: removed [currentIndex] from above deps to avoid re-scrolling if index changes internally
+    }, [isFullScreen]); // Removed logic that was moved to handleTapNavigation
 
     // Prevent scrolling on body when FS is open
     useEffect(() => {
@@ -176,7 +188,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         setTimeout(() => {
             setIsFullScreen(false);
             setIsClosing(false);
-        }, 10);
+        }, 50);
     };
 
     return (
@@ -260,7 +272,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
 
                             {/* FS Scroll Container */}
                             <div
-                                ref={fsScrollRef}
+                                ref={setFsScrollRef}
                                 className="flex-1 w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar touch-pan-x flex items-center"
                                 style={{ scrollBehavior: 'smooth' }}
                                 onClick={(e) => {
