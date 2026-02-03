@@ -88,11 +88,15 @@ export default function SuggestPage() {
               if (typeof value === 'string') params.append(key, value);
             });
 
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => controller.abort(), 8000);
+
             try {
               const response = await fetch('/__forms.html', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: params.toString(),
+                signal: controller.signal,
               });
 
               if (!response.ok) {
@@ -101,8 +105,9 @@ export default function SuggestPage() {
 
               window.location.href = '/suggest/thanks';
             } catch (error) {
-              setErrors('Something went wrong. Please try again.');
+              setErrors('Submission failed. Please try again.');
             } finally {
+              window.clearTimeout(timeoutId);
               setIsSubmitting(false);
             }
           }}
@@ -237,6 +242,12 @@ export default function SuggestPage() {
               <div className="rounded-2xl border border-dashed border-[var(--glass-border)] bg-[var(--bg-card)]/60 px-4 py-3 text-xs text-[var(--text-secondary)]">
                 We’ll check for duplicates and review each submission before it appears in the app.
               </div>
+
+              {errors && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800">
+                  {errors}
+                </div>
+              )}
             </div>
           )}
 
