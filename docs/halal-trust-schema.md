@@ -9,6 +9,7 @@
 | Column | Type | Default | Description |
 |--------|------|---------|-------------|
 | `halal_status` | `text` | `'community_listed'` | Verification tier (see values below) |
+| `google_data` | `jsonb` | `null` | Raw Apify JSON (ratings, reviews, hours) |
 
 ### Valid `halal_status` Values
 

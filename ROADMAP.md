@@ -39,7 +39,9 @@ This is our launch window. Muslims will be actively searching for:
 - ✅ **Swipe Mode**: Gamified discovery (unique differentiator)
 - ✅ **Saved List**: Works with localStorage
 - ✅ **Restaurant Details Page**: Name, address, hours, category
-- ⚠️ **Missing**: Images (gradient fallbacks), Halal verification indicators, Alcohol policy
+- ✅ **Rich Data**: High-quality images (via Apify), Review Counts, Star Ratings
+- ✅ **Trust Signals**: Community Listed badges, Disclaimers, Source transparency
+- ⚠️ **Missing**: Halal certification verification (Audit needed), Alcohol policy specific details
 
 ---
 
@@ -51,8 +53,9 @@ This is our launch window. Muslims will be actively searching for:
 ### Must-Have for Launch
 | Feature | Effort | Why |
 |---------|--------|-----|
-| **Trust Badges** ("Community Listed") | 2 hrs | Users need to know WHY it's on the list |
-| **Disclaimer** | 30 min | "Sourced from public lists. Verify before dining." |
+| **Trust Badges** ("Community Listed") | Done ✅ | Users need to know WHY it's on the list |
+| **Disclaimer** | Done ✅ | "Sourced from public lists. Verify before dining." |
+| **Automated Enrichment** | Done ✅ | Google Images, Ratings, Reviews synced via Apify |
 | **Report Issue Button** | 4 hrs | "Closed? Not Halal? Wrong info?" → builds trust loop |
 | **UserJot/Feedback Widget** | 1 hr | Know what's actually broken from real users |
 | **Analytics (PostHog/Plausible)** | 1 hr | See what users do, not what they say |
@@ -137,8 +140,9 @@ This is our launch window. Muslims will be actively searching for:
 
 | Day | Task |
 |-----|------|
-| **Today** | Add Trust Badges + Disclaimer + Report Button |
-| **Tomorrow** | Add UserJot + Analytics |
+| **Done** | Add Trust Badges + Disclaimer + Automated Images (Apify) |
+| **Next** | Add "Report Listing" + "Suggest a Place" forms |
+| **Then** | Add UserJot + Analytics |
 | **Day 3** | Create `/ramadan-deals-vancouver-2026` page |
 | **Day 4-5** | Curate 20-30 Ramadan deals manually |
 | **Day 6-7** | Launch + Post to Reddit/FB groups |

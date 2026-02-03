@@ -85,7 +85,71 @@ async function main() {
             if (item.totalScore) updates.rating = item.totalScore;
             if (item.reviewsCount) updates.reviews_count = item.reviewsCount;
             if (item.price) updates.price = item.price;
-            if (item.openingHours) updates.opening_hours = item.openingHours; // Save raw JSON
+            if (item.price) updates.price = item.price;
+
+            // Generate Structured Hours
+            let openingHoursJSON = null;
+            if (item.openingHours) {
+                const arr = item.openingHours as any[];
+
+                // 1. Weekday Text
+                const weekdayText = arr.map((h: any) => h.day && h.hours ? `${h.day}: ${h.hours}` : null).filter(Boolean);
+
+                // 2. Periods
+                const periods: any[] = [];
+                const dayMap: Record<string, number> = { "Sunday": 0, "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6 };
+
+                for (const h of arr) {
+                    if (!h.day || !h.hours || h.hours.toLowerCase().includes('closed')) continue;
+                    const dIdx = dayMap[h.day];
+                    if (dIdx === undefined) continue;
+
+                    if (h.hours.toLowerCase().includes('24 hours')) {
+                        periods.push({ open: { day: dIdx, time: "0000" } });
+                        continue;
+                    }
+
+                    // Parse "11:00 AM - 10:00 PM" OR "11 AM to 10 PM"
+                    const parts = h.hours.split(/to|-|–|—/).map((s: string) => s.trim());
+                    if (parts.length !== 2) continue;
+                    const [startStr, endStr] = parts;
+
+                    const parseTimeStr = (t: string) => {
+                        t = t.replace(/[\u200B-\u200D\uFEFF\u202F]/g, ' ').trim();
+                        const match = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+                        if (!match) throw new Error(); // Silent fail in loop
+
+                        let [_, hStr, mStr, mod] = match;
+                        let hh = parseInt(hStr);
+                        let mm = mStr ? parseInt(mStr) : 0;
+
+                        mod = mod.toUpperCase();
+                        if (mod === 'PM' && hh !== 12) hh += 12;
+                        if (mod === 'AM' && hh === 12) hh = 0;
+                        return hh.toString().padStart(2, '0') + mm.toString().padStart(2, '0');
+                    };
+
+                    try {
+                        const openTime = parseTimeStr(startStr);
+                        const closeTime = parseTimeStr(endStr);
+                        let closeDay = dIdx;
+                        if (parseInt(closeTime) < parseInt(openTime)) closeDay = (dIdx + 1) % 7;
+
+                        periods.push({ open: { day: dIdx, time: openTime }, close: { day: closeDay, time: closeTime } });
+                    } catch { }
+                }
+
+                openingHoursJSON = {
+                    weekday_text: weekdayText,
+                    periods: periods,
+                    source: "scraper_v2"
+                };
+            }
+
+            if (openingHoursJSON) updates.opening_hours = JSON.stringify(openingHoursJSON);
+            else if (item.openingHours) updates.opening_hours = item.openingHours; // Fallback
+
+            if (item.website) updates.website = item.website;
             if (item.website) updates.website = item.website;
             if (item.phone) updates.phone = item.phone;
             if (item.url) updates.google_url = item.url;

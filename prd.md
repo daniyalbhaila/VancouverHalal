@@ -59,7 +59,7 @@ How we turn traffic into revenue.
 ### Phase 1: Community & Data (Next 2 Weeks)
 **Goal**: Fill data gaps and create a feedback loop.
 - [ ] **Suggest a Spot (Crowdsourcing)**: Fab button to submit new places.
-- [ ] **Restaurant Details Page**: Dedicated URL for every restaurant (SEO baseline).
+- [x] **Restaurant Details Page**: Dedicated URL for every restaurant (SEO baseline).
 - [ ] **Basic Auth (Supabase)**: Move "Saved" from local storage to Cloud so it persists.
 
 ### Phase 2: Engagement (Launch Ready)
