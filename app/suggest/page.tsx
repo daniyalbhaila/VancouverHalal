@@ -11,6 +11,7 @@ export default function SuggestPage() {
   const [address, setAddress] = useState('');
   const [halalStatus, setHalalStatus] = useState('');
   const [errors, setErrors] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateBasics = () => {
     if (!name.trim()) {
@@ -64,9 +65,47 @@ export default function SuggestPage() {
         <form
           name="suggest-spot"
           method="POST"
-          action="/suggest/thanks"
+          action="/__forms.html"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
+          onSubmit={async (event) => {
+            if (step < 2) {
+              event.preventDefault();
+              if (step === 0 && !validateBasics()) return;
+              setStep((prev) => Math.min(prev + 1, 2));
+              return;
+            }
+
+            event.preventDefault();
+            if (isSubmitting) return;
+            setIsSubmitting(true);
+            setErrors(null);
+
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            formData.forEach((value, key) => {
+              if (typeof value === 'string') params.append(key, value);
+            });
+
+            try {
+              const response = await fetch('/__forms.html', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString(),
+              });
+
+              if (!response.ok) {
+                throw new Error('Submission failed');
+              }
+
+              window.location.href = '/suggest/thanks';
+            } catch (error) {
+              setErrors('Something went wrong. Please try again.');
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}
           className="mt-6 space-y-4"
         >
           <input type="hidden" name="form-name" value="suggest-spot" />
@@ -221,9 +260,10 @@ export default function SuggestPage() {
             ) : (
               <button
                 type="submit"
-                className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98]"
+                disabled={isSubmitting}
+                className="rounded-full bg-[var(--text-primary)] px-6 py-2.5 text-xs font-bold text-[var(--bg-base)] shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70"
               >
-                Submit suggestion
+                {isSubmitting ? 'Submitting...' : 'Submit suggestion'}
               </button>
             )}
           </div>
