@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: '/private/',
         },
-        sitemap: 'https://vancouverhalal.com/sitemap.xml',
+        sitemap: 'https://halalmaps.app/sitemap.xml',
     };
 }

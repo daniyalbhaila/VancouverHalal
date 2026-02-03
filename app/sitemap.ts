@@ -1,8 +1,9 @@
 import { getDiscoveryRestaurants } from '@/lib/data';
+import { CITIES } from '@/lib/cities';
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://vancouverhalal.com';
+    const baseUrl = 'https://halalmaps.app';
     const restaurants = await getDiscoveryRestaurants();
 
     // Static routes
@@ -35,5 +36,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    return [...staticRoutes, ...restaurantRoutes];
+    // City landing pages
+    const cityRoutes: MetadataRoute.Sitemap = Object.keys(CITIES).map((city) => ({
+        url: `${baseUrl}/best-halal-restaurants-in-${city}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...cityRoutes, ...restaurantRoutes];
 }

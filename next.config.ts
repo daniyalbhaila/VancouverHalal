@@ -26,6 +26,14 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/best-halal-restaurants-in-:city',
+        destination: '/city/:city',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
