@@ -25,11 +25,27 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     // Initial Scroll Position Callback
     const setFsScrollRef = (node: HTMLDivElement | null) => {
         fsScrollRef.current = node;
-        if (node && isFullScreen) {
-            // Direct scroll immediately
-            node.scrollLeft = currentIndex * node.clientWidth;
-        }
     };
+
+    // Ensure initial scroll position is correct when opening
+    useLayoutEffect(() => {
+        if (isFullScreen) {
+            // Use scrollIntoView which is robust against layout timing
+            const target = document.getElementById(`gallery-fs-image-${currentIndex}`);
+            if (target) {
+                target.scrollIntoView({ behavior: 'instant', inline: 'center' });
+            } else {
+                // Fallback: retry in next frame if DOM not ready
+                requestAnimationFrame(() => {
+                    const retryTarget = document.getElementById(`gallery-fs-image-${currentIndex}`);
+                    if (retryTarget) {
+                        retryTarget.scrollIntoView({ behavior: 'instant', inline: 'center' });
+                    }
+                });
+            }
+        }
+    }, [isFullScreen]); // Only trigger on open/close (but close doesn't matter)
+
 
     // Track scroll position for MAIN gallery
     useEffect(() => {
@@ -148,6 +164,11 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         // Center -> Action
         else {
             if (isMain) {
+                // Force sync index from scroll position to ensure accuracy before opening
+                const index = Math.round(el.scrollLeft / width);
+                if (index !== currentIndex) {
+                    setCurrentIndex(index);
+                }
                 setIsFullScreen(true);
             } else {
                 handleClose();
@@ -248,7 +269,11 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                 }}
                             >
                                 {validImages.map((src, i) => (
-                                    <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
+                                    <div
+                                        key={`${src}-fs-${i}`}
+                                        id={`gallery-fs-image-${i}`}
+                                        className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8"
+                                    >
                                         <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
                                             <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
                                                 <RestaurantImage
