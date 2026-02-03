@@ -1,7 +1,7 @@
-import { getRestaurantBySlug } from "@/lib/data";
+import { getRestaurantBySlug, getAllRestaurantSlugs } from "@/lib/data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Star, MapPin, Globe, Phone, Navigation } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Globe, Phone, Navigation, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Metadata } from 'next';
 import { RestaurantImage } from "@/components/RestaurantImage";
@@ -11,21 +11,33 @@ import { TrustBadge } from "@/components/TrustBadge";
 import { SourceDisclaimer } from "@/components/SourceDisclaimer";
 import { DietaryFlags, type DietaryInfo } from "@/components/DietaryFlags";
 
+// --- ISR Configuration ---
+// Revalidate this page every hour (3600 seconds)
+export const revalidate = 3600;
+
+// --- Static Params Generation ---
+// This tells Next.js which slugs to pre-build at build time
+export async function generateStaticParams() {
+    const slugs = await getAllRestaurantSlugs();
+    return slugs.map((s) => ({
+        slug: s.slug,
+    }));
+}
+
 // Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
     const restaurant = await getRestaurantBySlug(slug);
 
     if (!restaurant) {
-        return { title: 'Restaurant Not Found' };
+        return {
+            title: 'Restaurant Not Found | Vancouver Halal',
+        };
     }
 
     return {
-        title: `${restaurant.name} - Halal Vancouver`,
-        description: `Visit ${restaurant.name} in Vancouver. Rated ${restaurant.rating}/5. ${restaurant.categories.join(', ')}.`,
-        openGraph: {
-            images: restaurant.image ? [restaurant.image] : [],
-        },
+        title: `${restaurant.name} | Vancouver Halal`,
+        description: `Halal dining guide for ${restaurant.name}. View hours, location, and halal verification details.`,
     };
 }
 
@@ -34,7 +46,7 @@ export default async function RestaurantPage({
     searchParams
 }: {
     params: Promise<{ slug: string }>;
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+    searchParams: Promise<{ mock?: string }>;
 }) {
     const { slug } = await params;
     const { mock } = await searchParams;

@@ -161,3 +161,18 @@ export async function getRestaurantBySlug(slug: string): Promise<RestaurantCard 
 
     return restaurant;
 }
+export async function getAllRestaurantSlugs(): Promise<{ slug: string }[]> {
+    const rawData = await fetchAll<{ name: string; id: string }>("halal_restaurants", {
+        select: "name,id",
+        filters: [
+            "or=(permanently_closed.is.false,permanently_closed.is.null)",
+            "or=(temporarily_closed.is.false,temporarily_closed.is.null)",
+        ],
+    });
+
+    if (!rawData) return [];
+
+    return rawData.map((row) => ({
+        slug: generateSlug(row.name, row.id),
+    }));
+}
