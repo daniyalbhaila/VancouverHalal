@@ -241,6 +241,9 @@ export default async function RestaurantPage({
                 {/* --- INFO SECTIONS (Consistent padding) --- */}
                 <div className="mt-6 space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500 delay-100">
 
+                    {/* Source Disclaimer - Moved to top */}
+                    <SourceDisclaimer variant="detail" />
+
                     {/* Hours - Collapsible */}
                     <HoursDisplay openingHours={data.openingHours} isOpenNow={data.isOpenNow} />
 
@@ -254,8 +257,15 @@ export default async function RestaurantPage({
                         rating={data.rating}
                     />
 
-                    {/* Source Disclaimer */}
-                    <SourceDisclaimer variant="detail" />
+                    {/* Location - Map Preview */}
+                    <LocationMap
+                        lat={data.location.lat}
+                        lng={data.location.lng}
+                        name={data.name}
+                        address={data.address}
+                        googleMapsUrl={directionsUrl}
+                        rating={data.rating}
+                    />
 
                     {/* Dietary Details */}
                     {mockDietaryInfo && (
