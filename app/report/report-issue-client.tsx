@@ -54,7 +54,7 @@ export default function ReportIssueClient() {
           ref={formRef}
           name="report-issue"
           method="POST"
-          action="/"
+          action="/__forms.html"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
           onSubmit={(event) => event.preventDefault()}
@@ -69,8 +69,7 @@ export default function ReportIssueClient() {
             </label>
           </p>
 
-          {step === 0 && (
-            <div className="space-y-4">
+          <div className={step === 0 ? 'space-y-4' : 'hidden'}>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-[var(--text-secondary)]">What’s wrong?</label>
                 <div className="grid gap-2">
@@ -108,11 +107,9 @@ export default function ReportIssueClient() {
                   {errors}
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
-          {step === 1 && (
-            <div className="space-y-4">
+          <div className={step === 1 ? 'space-y-4' : 'hidden'}>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-[var(--text-secondary)]">Details (optional)</label>
                 <textarea
@@ -122,11 +119,9 @@ export default function ReportIssueClient() {
                   className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm outline-none focus:border-emerald-400"
                 />
               </div>
-            </div>
-          )}
+          </div>
 
-          {step === 2 && (
-            <div className="space-y-4">
+          <div className={step === 2 ? 'space-y-4' : 'hidden'}>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-[var(--text-secondary)]">Your email (optional)</label>
                 <input
@@ -146,8 +141,7 @@ export default function ReportIssueClient() {
                   {errors}
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <button
@@ -201,7 +195,7 @@ export default function ReportIssueClient() {
                   const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 
                   try {
-                    const response = await fetch('/', {
+                    const response = await fetch('/__forms.html', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                       body: params.toString(),
@@ -209,7 +203,16 @@ export default function ReportIssueClient() {
                     });
 
                     if (!response.ok) {
-                      throw new Error('Submission failed');
+                      const fallback = await fetch('/.netlify/forms/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString(),
+                        signal: controller.signal,
+                      });
+
+                      if (!fallback.ok) {
+                        throw new Error('Submission failed');
+                      }
                     }
 
                     window.location.href = '/suggest/thanks';
