@@ -52,7 +52,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
             scrollTimeout.current = setTimeout(() => {
                 setIsScrolling(false);
-            }, 100);
+            }, 300);
 
             const index = Math.round(el.scrollLeft / el.clientWidth);
             if (index !== currentIndex) {
