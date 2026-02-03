@@ -1,6 +1,8 @@
 import { fetchAll, fetchOne } from './supabase';
 import { generateSlug } from './slug';
 import { computeIsOpenNow } from './hours';
+import type { HalalStatus } from '@/components/TrustBadge';
+import type { DietaryInfo } from '@/components/DietaryFlags';
 
 export type RestaurantCard = {
     id: string;
@@ -21,6 +23,8 @@ export type RestaurantCard = {
     phone: string | null;
     website: string | null;
     openingHours: any | null;
+    halalStatus: HalalStatus;
+    dietaryInfo?: DietaryInfo;
 };
 
 // Raw row from Supabase View
@@ -41,12 +45,13 @@ type RawRow = {
     website: string | null;
     permanently_closed: boolean | null;
     temporarily_closed: boolean | null;
+    halal_status: string | null;
 };
 
 
 export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
     const rawData = await fetchAll<RawRow>("halal_restaurants", {
-        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed",
+        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed,halal_status",
         filters: [
             "or=(permanently_closed.is.false,permanently_closed.is.null)",
             "or=(temporarily_closed.is.false,temporarily_closed.is.null)",
@@ -89,6 +94,7 @@ export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
                 phone: r.phone,
                 website: r.website,
                 openingHours: r.opening_hours,
+                halalStatus: (r.halal_status as HalalStatus) || 'community_listed',
             };
         })
         .sort((a, b) => b.rating - a.rating); // Default sort by rating
@@ -96,7 +102,7 @@ export async function getDiscoveryRestaurants(): Promise<RestaurantCard[]> {
 
 export async function getRestaurantById(id: string): Promise<RestaurantCard | null> {
     const rawData = await fetchOne<RawRow>("halal_restaurants", {
-        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed",
+        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed,halal_status",
         filters: [`id=eq.${id}`],
     });
 
@@ -131,6 +137,7 @@ export async function getRestaurantById(id: string): Promise<RestaurantCard | nu
         phone: r.phone,
         website: r.website,
         openingHours: r.opening_hours,
+        halalStatus: (r.halal_status as HalalStatus) || 'community_listed',
     };
 }
 

@@ -8,6 +8,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { calculateDistance } from '@/lib/location';
 import { Map as MapComponent, MapControls, MapMarker, MarkerContent, MarkerLabel, MarkerPopup } from '@/components/ui/map';
 import { RestaurantImage } from '@/components/RestaurantImage';
+import { TrustBadge } from '@/components/TrustBadge';
 import Link from 'next/link';
 
 
@@ -105,83 +106,78 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                             </span>
                         </MarkerLabel>
 
-                        {/* 3. Popup Card */}
-                        <MarkerPopup className="p-0 min-w-[260px] max-w-[300px] border-none shadow-xl rounded-2xl">
-                            {/* Make entire card clickable */}
+                        {/* 3. Popup Card - Styled like Home Page Cards */}
+                        <MarkerPopup className="p-0 min-w-[280px] max-w-[320px] border-none shadow-2xl rounded-2xl overflow-hidden">
                             <Link href={`/restaurant/${restaurant.slug}`} className="block">
-                                <div className="flex flex-col overflow-hidden rounded-2xl">
-                                    {/* Image Header */}
-                                    <div
-                                        className="h-28 w-full bg-zinc-100 relative group-hover:scale-105 transition-transform duration-500"
-                                        style={{ viewTransitionName: `restaurant-hero-${restaurant.slug}` }}
-                                    >
-                                        <RestaurantImage
-                                            src={restaurant.image}
-                                            alt={restaurant.name}
-                                            seed={restaurant.categories[0] || restaurant.name}
-                                            sizes="300px"
-                                            fallbackTextClassName="text-4xl"
-                                        />
-                                        {/* Gradient Overlay for Text Readability matches Card */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                                <div className="relative h-48 w-full">
+                                    {/* Background Image */}
+                                    <RestaurantImage
+                                        src={restaurant.image}
+                                        alt={restaurant.name}
+                                        seed={restaurant.categories[0] || restaurant.name}
+                                        sizes="320px"
+                                        fallbackTextClassName="text-4xl"
+                                    />
 
-                                        {/* Open/Closed Badge - Top Left */}
-                                        <div className="absolute top-2 left-2 z-10">
-                                            {restaurant.isOpenNow ? (
-                                                <div className="px-2 py-0.5 bg-emerald-500/90 backdrop-blur-md rounded-full shadow-sm flex items-center gap-1 border border-emerald-400/20">
-                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
-                                                </div>
-                                            ) : (
-                                                <div className="px-2 py-0.5 bg-red-900/70 backdrop-blur-md rounded-full shadow-sm border border-red-200/10 flex items-center">
-                                                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Closed</span>
-                                                </div>
-                                            )}
-                                        </div>
+                                    {/* Gradient Overlays - matches home cards */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent h-20" />
 
-                                        {/* Distance Badge - Top Right */}
+                                    {/* Top Left: Open/Closed */}
+                                    <div className="absolute top-3 left-3 z-10">
+                                        {restaurant.isOpenNow ? (
+                                            <div className="px-2 py-1 bg-emerald-500 rounded-full shadow-lg flex items-center gap-1">
+                                                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
+                                            </div>
+                                        ) : (
+                                            <div className="px-2 py-1 bg-red-500 rounded-full shadow-lg">
+                                                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Closed</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Top Right: Trust Badge + Distance */}
+                                    <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+                                        <TrustBadge status={restaurant.halalStatus} variant="compact" />
                                         {location && (
-                                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90 z-10">
+                                            <div className="px-2 py-0.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90">
                                                 <MapPin className="w-3 h-3 text-white" />
                                                 <span className="text-[10px] font-bold">{((calculateDistance(location.lat, location.lng, restaurant.location.lat, restaurant.location.lng)).toFixed(1))} km</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Content */}
-                                    <div className="p-3 bg-white">
-                                        <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h3 className="font-bold text-base text-zinc-900 leading-tight">{restaurant.name}</h3>
-                                            {/* Rating Badge - matches discovery cards */}
-                                            <div className="flex items-center gap-0.5 bg-yellow-400 text-black px-1.5 py-0.5 rounded-md shrink-0 font-bold text-xs">
+                                    {/* Bottom Content Overlay */}
+                                    <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+                                        <div className="flex justify-between items-end gap-2 mb-2">
+                                            <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 drop-shadow-md">
+                                                {restaurant.name}
+                                            </h3>
+                                            {/* Rating Badge */}
+                                            <div className="flex items-center gap-0.5 bg-yellow-400 text-black px-1.5 py-0.5 rounded-md shrink-0 font-bold text-xs shadow-lg">
                                                 {restaurant.rating.toFixed(1)}
                                                 <Star className="w-3 h-3 fill-black" />
                                                 <span className="text-[9px] opacity-70">({restaurant.reviews})</span>
                                             </div>
                                         </div>
 
-                                        <p className="text-xs text-zinc-500 mb-2">{restaurant.price} · {restaurant.categories[0]}</p>
+                                        <p className="text-xs text-white/70 mb-3">{restaurant.price} · {restaurant.categories[0]} · {restaurant.address.split(',')[0]}</p>
 
-                                        {/* Action Row - Dark buttons like discovery */}
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    window.open(
-                                                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + " " + restaurant.address)}`,
-                                                        '_blank'
-                                                    );
-                                                }}
-                                                className="flex-1 flex items-center justify-center gap-1 py-2 bg-zinc-900 text-white text-xs font-bold rounded-full hover:bg-zinc-700 transition-colors"
-                                            >
-                                                <Navigation className="w-3 h-3" />
-                                                Directions
-                                            </button>
-                                            {/* Subtle "See more" text - just tapping card also works */}
-                                            <span className="text-xs text-zinc-400 font-medium">
-                                                Tap for details →
-                                            </span>
-                                        </div>
+                                        {/* Action Button */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                window.open(
+                                                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + " " + restaurant.address)}`,
+                                                    '_blank'
+                                                );
+                                            }}
+                                            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-white text-zinc-900 text-xs font-bold rounded-full hover:bg-zinc-100 transition-colors shadow-lg"
+                                        >
+                                            <Navigation className="w-3.5 h-3.5" />
+                                            Directions
+                                        </button>
                                     </div>
                                 </div>
                             </Link>

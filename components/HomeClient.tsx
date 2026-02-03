@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RestaurantCardSkeleton } from '@/components/RestaurantCardSkeleton';
 import { MapSkeleton } from '@/components/MapSkeleton';
 import { computeIsOpenNow } from '@/lib/hours';
+import { SourceDisclaimer } from '@/components/SourceDisclaimer';
 
 const MapComponent = dynamic(() => import('@/components/Map'), {
     ssr: false,
@@ -62,12 +63,86 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
     // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
     const filteredRestaurants = useMemo(() => {
-        const withLiveStatus = initialRestaurants.map((restaurant) => ({
+        // --- MOCK DATA INJECTION (Toggle with ?mock=true) ---
+        const showMocks = process.env.NODE_ENV === 'development' && searchParams.get('mock') === 'true';
+
+        // Create 3 complete mock restaurants (prepend to list for visibility)
+        const mockRestaurants: RestaurantType[] = showMocks ? [
+            {
+                id: 'mock-certified',
+                slug: 'paramount-fine-foods-mock',
+                name: "✅ Paramount Fine Foods",
+                location: { lat: 49.2827, lng: -123.1207 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Middle Eastern', 'BBQ'],
+                rating: 9.9,
+                reviews: 50000,
+                address: '123 Mock St, Vancouver',
+                price: '$$',
+                isOpenNow: true,
+                googleUrl: '',
+                phone: null,
+                website: null,
+                openingHours: null,
+                halalStatus: 'certified'
+            },
+            {
+                id: 'mock-community',
+                slug: 'manouseh-mock',
+                name: "👥 Manoush'eh",
+                location: { lat: 49.2800, lng: -123.1100 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Lebanese', 'Bakery'],
+                rating: 9.8,
+                reviews: 40000,
+                address: '456 Mock Ave, Vancouver',
+                price: '$$',
+                isOpenNow: true,
+                googleUrl: '',
+                phone: null,
+                website: null,
+                openingHours: null,
+                halalStatus: 'community_listed'
+            },
+            {
+                id: 'mock-verbal',
+                slug: 'earls-kitchen-mock',
+                name: "💬 Earls Kitchen (Verbal)",
+                location: { lat: 49.2750, lng: -123.1300 },
+                image: '/hero-placeholder.jpg',
+                categories: ['Burgers', 'Steak'],
+                rating: 9.7,
+                reviews: 30000,
+                address: '789 Mock Blvd, Vancouver',
+                price: '$$$',
+                isOpenNow: true,
+                googleUrl: '',
+                phone: null,
+                website: null,
+                openingHours: null,
+                halalStatus: 'verbally_confirmed'
+            }
+        ] : [];
+        // ---------------------------------------------------
+
+        const combinedData = showMocks
+            ? [...mockRestaurants, ...initialRestaurants]
+            : initialRestaurants;
+
+        const withLiveStatus = combinedData.map((restaurant) => ({
             ...restaurant,
             isOpenNow: computeIsOpenNow(restaurant.openingHours, restaurant.isOpenNow),
         }));
 
+        // For mocks: Add distance of 0 to skip radius filter, then filter/sort normally
         let result: RestaurantWithDistance[] = addDistanceToRestaurants(withLiveStatus, location);
+
+        // Force mock items to have tiny distance so they pass radius filter
+        if (showMocks) {
+            result = result.map(r =>
+                r.id.startsWith('mock-') ? { ...r, distance: 0.1 } : r
+            );
+        }
 
         // 0. Calculate Distance if location is available
         // 1. Filter by Category
@@ -87,7 +162,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             result = result.filter(r => (r.distance || 0) <= radius);
         }
 
-        // 4. Sort
+        // 4. Sort (mock items have high ratings, so they'll stay near top with 'recommended')
         result.sort((a, b) => {
             if (sortBy === 'distance' && location) {
                 return (a.distance || 0) - (b.distance || 0);
@@ -108,7 +183,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         });
 
         return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick]);
+    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams]);
 
 
 
@@ -272,7 +347,8 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                 {filteredRestaurants.length > 0 && (
                     <div className="text-center py-8">
                         <div className="inline-block w-12 h-1 bg-zinc-200 rounded-full mb-4"></div>
-                        <p className="text-zinc-400 text-sm font-medium">You've reached the end</p>
+                        <p className="text-zinc-400 text-sm font-medium mb-2">You've reached the end</p>
+                        <SourceDisclaimer variant="footer" />
                     </div>
                 )}
             </div>

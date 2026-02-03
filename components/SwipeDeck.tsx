@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useFavorites } from '@/hooks/useFavorites';
 import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/restaurants';
 import { RestaurantImage } from '@/components/RestaurantImage';
+import { TrustBadge } from '@/components/TrustBadge';
 
 interface SwipeDeckProps {
     restaurants: RestaurantCard[];
@@ -136,23 +137,26 @@ const CardContent = ({ restaurant }: { restaurant: RestaurantWithDistance }) => 
                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent h-32" />
             </div>
 
-            {/* Top Badges */}
-            <div className="absolute top-6 left-6 flex flex-col gap-2 items-start z-20">
+            {/* Top Left: Open/Closed Only - Same as RestaurantCard */}
+            <div className="absolute top-4 left-4 z-20">
                 {restaurant.isOpenNow ? (
-                    <div className="px-3 py-1.5 bg-emerald-500/20 backdrop-blur-md rounded-full border border-emerald-500/30 flex items-center gap-1.5 shadow-lg">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-[11px] font-bold text-emerald-100 uppercase tracking-widest">Open Now</span>
+                    <div className="px-2 py-0.5 bg-emerald-500/90 backdrop-blur-md rounded-full shadow-sm flex items-center gap-1 border border-emerald-400/20">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Open</span>
                     </div>
                 ) : (
-                    <div className="px-3 py-1.5 bg-rose-500/20 backdrop-blur-md rounded-full border border-rose-500/30 shadow-lg">
-                        <span className="text-[11px] font-bold text-rose-100 uppercase tracking-widest">Closed</span>
+                    <div className="px-2 py-0.5 bg-red-900/70 backdrop-blur-md rounded-full shadow-sm border border-red-200/10 flex items-center">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Closed</span>
                     </div>
                 )}
+            </div>
 
+            {/* Top Right: Trust Badge + Distance - Same as RestaurantCard */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                <TrustBadge status={restaurant.halalStatus} variant="compact" />
                 {restaurant.distance && (
-                    <div className="px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1.5 shadow-lg text-white/90">
+                    <div className="px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1 shadow-sm text-white/90">
                         <MapPin className="w-3 h-3 text-white" />
-                        <span className="text-xs font-bold">{restaurant.distance.toFixed(1)} km</span>
+                        <span className="text-[10px] font-bold">{restaurant.distance.toFixed(1)} km</span>
                     </div>
                 )}
             </div>
@@ -177,7 +181,7 @@ const CardContent = ({ restaurant }: { restaurant: RestaurantWithDistance }) => 
                     <span className="truncate max-w-[150px]">{restaurant.address.split(',')[0]}</span>
                 </div>
 
-                {/* Categories Tags */}
+                {/* Category Tags Only (Trust Badge moved to top-right) */}
                 <div className="flex flex-wrap gap-2">
                     {restaurant.categories.slice(0, 3).map((cat: string) => (
                         <span key={cat} className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg text-xs font-semibold border border-white/10 text-white/90">
