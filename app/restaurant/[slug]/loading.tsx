@@ -1,76 +1,76 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Star, MapPin, Phone, Globe, Navigation } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
-// This loading skeleton is shown instantly while the restaurant detail page loads
+// Loading skeleton matching the actual restaurant detail page layout
 export default function RestaurantLoading() {
     return (
-        <div className="min-h-screen bg-[var(--bg-base)]">
-            {/* Hero Image Skeleton */}
-            <div className="relative h-72 sm:h-80 md:h-96 bg-zinc-200 dark:bg-zinc-800">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="min-h-screen bg-bg-base pb-32">
+            {/* Back Button - Fixed like the real page */}
+            <Link
+                href="/"
+                className="fixed top-4 left-4 z-50 p-2.5 bg-black/40 backdrop-blur-md rounded-full text-white shadow-lg"
+            >
+                <ArrowLeft className="w-5 h-5" />
+            </Link>
 
-                {/* Back Button */}
-                <button className="absolute top-4 left-4 z-10 p-2 bg-black/30 backdrop-blur-md rounded-full">
-                    <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
+            {/* Hero Image Skeleton - Same aspect ratio as real page */}
+            <div className="relative w-full aspect-[2/1] md:aspect-[2.5/1] lg:h-[400px] bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                {/* Shimmer */}
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </div>
 
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            {/* Content Area - Matches real page px-5 -mt-8 */}
+            <div className="px-5 -mt-8 relative z-10">
+                {/* Floating Header Card - Matches real layout */}
+                <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-lg rounded-2xl p-5 shadow-xl border border-border/50">
+                    <div className="flex justify-between items-start mb-2">
+                        <Skeleton className="h-7 w-48 rounded-lg" />
+                        <Skeleton className="h-7 w-16 rounded-lg" />
+                    </div>
+                    {/* Meta line */}
+                    <Skeleton className="h-4 w-40 mb-2" />
+                    {/* Trust Badge */}
+                    <Skeleton className="h-8 w-28 rounded-full" />
+                </div>
+
+                {/* Actions Grid (hidden on mobile) */}
+                <div className="hidden md:flex gap-3 mt-6">
+                    <Skeleton className="h-12 flex-1 rounded-xl" />
+                    <Skeleton className="h-12 flex-1 rounded-xl" />
+                    <Skeleton className="h-12 flex-1 rounded-xl" />
+                </div>
+
+                {/* Info Sections */}
+                <div className="mt-6 space-y-4">
+                    {/* Hours Section */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-border/50">
+                        <Skeleton className="h-5 w-32 mb-3" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-56" />
+                            <Skeleton className="h-4 w-48" />
+                        </div>
+                    </div>
+
+                    {/* Map Preview */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden border border-border/50">
+                        <Skeleton className="h-[180px] w-full" />
+                        <div className="p-4">
+                            <Skeleton className="h-4 w-64 mb-1" />
+                            <Skeleton className="h-4 w-40" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Content Area */}
-            <div className="p-5 -mt-8 relative z-10">
-                {/* Name & Rating */}
-                <div className="flex justify-between items-start gap-4 mb-4">
-                    <Skeleton className="h-8 w-56 rounded-lg" />
-                    <div className="flex items-center gap-1 bg-yellow-400/20 px-2 py-1 rounded-md">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <Skeleton className="h-4 w-16" />
-                    </div>
-                </div>
-
-                {/* Trust Badge */}
-                <Skeleton className="h-6 w-32 rounded-full mb-3" />
-
-                {/* Meta line */}
-                <Skeleton className="h-4 w-48 mb-6" />
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 mb-8">
+            {/* Mobile Action Bar */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg-card/90 backdrop-blur-xl border-t border-border/50 z-40 pb-safe">
+                <div className="flex gap-3 justify-center">
+                    <Skeleton className="h-12 w-12 rounded-full" />
                     <Skeleton className="h-12 flex-1 rounded-full" />
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                </div>
-
-                {/* Dietary Flags Section */}
-                <div className="mb-6">
-                    <Skeleton className="h-5 w-40 mb-3" />
-                    <div className="grid grid-cols-3 gap-3">
-                        <Skeleton className="h-20 rounded-xl" />
-                        <Skeleton className="h-20 rounded-xl" />
-                        <Skeleton className="h-20 rounded-xl" />
-                    </div>
-                </div>
-
-                {/* Address Section */}
-                <div className="mb-6">
-                    <Skeleton className="h-5 w-24 mb-2" />
-                    <Skeleton className="h-4 w-64 mb-1" />
-                    <Skeleton className="h-4 w-32" />
-                </div>
-
-                {/* Hours Section */}
-                <div>
-                    <Skeleton className="h-5 w-32 mb-3" />
-                    <div className="space-y-2">
-                        {[...Array(5)].map((_, i) => (
-                            <Skeleton key={i} className="h-4 w-48" />
-                        ))}
-                    </div>
                 </div>
             </div>
         </div>
