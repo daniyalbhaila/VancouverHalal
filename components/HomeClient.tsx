@@ -203,11 +203,11 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             >
                 <div className="flex items-center justify-between mb-1">
                     <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] font-manrope">
-                        Vancouver Halal
+                        Halal Maps
                     </h1>
                 </div>
                 <p className="text-sm font-medium text-[var(--text-secondary)] font-newsreader italic">
-                    Top rated dining & hidden gems
+                    Vancouver's top rated dining guide
                 </p>
             </div>
 
@@ -295,10 +295,6 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
 
             {/* Feed Container */}
             <div className={cn("pb-32 pt-4 px-4 max-w-md mx-auto min-h-[500px]", view === 'map' ? 'hidden' : 'block')}>
-                <div className="mb-6">
-                    <SourceDisclaimer variant="footer" />
-                </div>
-
                 {/* Show loading state until location is resolved */}
                 {locationLoading ? (
                     <div className="space-y-3">
@@ -355,6 +351,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                     <div className="text-center py-8">
                         <div className="inline-block w-12 h-1 bg-zinc-200 rounded-full mb-4"></div>
                         <p className="text-zinc-400 text-sm font-medium mb-2">You've reached the end</p>
+                        <SourceDisclaimer variant="footer" />
                     </div>
                 )}
             </div>

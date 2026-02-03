@@ -7,12 +7,12 @@ import type { Metadata } from 'next';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Top Rated Halal Restaurants in Vancouver | 2024 Guide',
-  description: 'Find the best Halal restaurants in Vancouver. Search by rating, distance, and cuisine. Updated daily with open hours and verification status.',
-  keywords: ['Halal food Vancouver', 'Halal restaurants near me', 'Best Halal Vancouver', 'Vancouver Halal Guide'],
+  title: 'Halal Maps | Top Rated Halal Restaurants in Vancouver',
+  description: 'Find the best accessible Halal food in Vancouver. Search by rating, distance, and cuisine on Halal Maps. Updated daily.',
+  keywords: ['Halal Maps', 'Halal food Vancouver', 'Halal restaurants near me', 'Best Halal Vancouver', 'Vancouver Halal Guide'],
   openGraph: {
-    title: 'Top Rated Halal Restaurants in Vancouver',
-    description: 'Find the best accessible Halal food in Vancouver, BC.',
+    title: 'Halal Maps | Top Rated Halal Restaurants in Vancouver',
+    description: 'Find the best accessible Halal food in Vancouver, BC using Halal Maps.',
     type: 'website',
   }
 };

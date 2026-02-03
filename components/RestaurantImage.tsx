@@ -58,8 +58,6 @@ export function RestaurantImage({
       className={cn('object-cover', className)}
       sizes={sizes}
       priority={priority}
-      loader={({ src: imageSrc }) => imageSrc}
-      unoptimized
       referrerPolicy="no-referrer"
     />
   );
