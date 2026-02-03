@@ -238,6 +238,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                                     <RestaurantImage
                                                         src={src}
                                                         alt={`${alt} full screen ${i + 1}`}
+                                                        seed={alt}
                                                         className="object-contain"
                                                         // RestaurantImage uses fill=true internally
                                                         priority={true}
@@ -249,6 +250,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                                     <RestaurantImage
                                                         src={src}
                                                         alt={`${alt} full screen ${i + 1}`}
+                                                        seed={alt}
                                                         className="object-contain"
                                                     />
                                                 </div>
