@@ -62,68 +62,71 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     // But we still need to derive distance when location becomes available.
 
     // Filter & Sort Logic - using useMemo for synchronous computation (no double render!)
-    const filteredRestaurants = useMemo(() => {
-        // --- MOCK DATA INJECTION (Toggle with ?mock=true) ---
-        const showMocks = process.env.NODE_ENV === 'development' && searchParams.get('mock') === 'true';
 
-        // Create 3 complete mock restaurants (prepend to list for visibility)
-        const mockRestaurants: RestaurantType[] = showMocks ? [
-            {
-                id: 'mock-certified',
-                slug: 'paramount-fine-foods-mock',
-                name: "✅ Paramount Fine Foods",
-                location: { lat: 49.2827, lng: -123.1207 },
-                image: '/hero-placeholder.jpg',
-                categories: ['Middle Eastern', 'BBQ'],
-                rating: 9.9,
-                reviews: 50000,
-                address: '123 Mock St, Vancouver',
-                price: '$$',
-                isOpenNow: true,
-                googleUrl: '',
-                phone: null,
-                website: null,
-                openingHours: null,
-                halalStatus: 'certified'
-            },
-            {
-                id: 'mock-community',
-                slug: 'manouseh-mock',
-                name: "👥 Manoush'eh",
-                location: { lat: 49.2800, lng: -123.1100 },
-                image: '/hero-placeholder.jpg',
-                categories: ['Lebanese', 'Bakery'],
-                rating: 9.8,
-                reviews: 40000,
-                address: '456 Mock Ave, Vancouver',
-                price: '$$',
-                isOpenNow: true,
-                googleUrl: '',
-                phone: null,
-                website: null,
-                openingHours: null,
-                halalStatus: 'community_listed'
-            },
-            {
-                id: 'mock-verbal',
-                slug: 'earls-kitchen-mock',
-                name: "💬 Earls Kitchen (Verbal)",
-                location: { lat: 49.2750, lng: -123.1300 },
-                image: '/hero-placeholder.jpg',
-                categories: ['Burgers', 'Steak'],
-                rating: 9.7,
-                reviews: 30000,
-                address: '789 Mock Blvd, Vancouver',
-                price: '$$$',
-                isOpenNow: true,
-                googleUrl: '',
-                phone: null,
-                website: null,
-                openingHours: null,
-                halalStatus: 'verbally_confirmed'
-            }
-        ] : [];
-        // ---------------------------------------------------
+    // --- MOCK DATA INJECTION (Toggle with ?mock=true) ---
+    const showMocks = process.env.NODE_ENV === 'development' && searchParams.get('mock') === 'true';
+
+    // Create 3 complete mock restaurants (prepend to list for visibility)
+    const mockRestaurants: RestaurantType[] = useMemo(() => showMocks ? [
+        {
+            id: 'mock-certified',
+            slug: 'paramount-fine-foods-mock',
+            name: "✅ Paramount Fine Foods",
+            location: { lat: 49.2827, lng: -123.1207 },
+            image: '/hero-placeholder.jpg',
+            categories: ['Middle Eastern', 'BBQ'],
+            rating: 9.9,
+            reviews: 50000,
+            address: '123 Mock St, Vancouver',
+            price: '$$',
+            isOpenNow: true,
+            googleUrl: '',
+            phone: null,
+            website: null,
+            openingHours: null,
+            halalStatus: 'certified'
+        },
+        {
+            id: 'mock-community',
+            slug: 'manouseh-mock',
+            name: "👥 Manoush'eh",
+            location: { lat: 49.2800, lng: -123.1100 },
+            image: '/hero-placeholder.jpg',
+            categories: ['Lebanese', 'Bakery'],
+            rating: 9.8,
+            reviews: 40000,
+            address: '456 Mock Ave, Vancouver',
+            price: '$$',
+            isOpenNow: true,
+            googleUrl: '',
+            phone: null,
+            website: null,
+            openingHours: null,
+            halalStatus: 'community_listed'
+        },
+        {
+            id: 'mock-verbal',
+            slug: 'earls-kitchen-mock',
+            name: "💬 Earls Kitchen (Verbal)",
+            location: { lat: 49.2750, lng: -123.1300 },
+            image: '/hero-placeholder.jpg',
+            categories: ['Burgers', 'Steak'],
+            rating: 9.7,
+            reviews: 30000,
+            address: '789 Mock Blvd, Vancouver',
+            price: '$$$',
+            isOpenNow: true,
+            googleUrl: '',
+            phone: null,
+            website: null,
+            openingHours: null,
+            halalStatus: 'verbally_confirmed'
+        }
+    ] : [], [showMocks]);
+    // ---------------------------------------------------
+
+    const filteredRestaurants = useMemo(() => {
+
 
         const combinedData = showMocks
             ? [...mockRestaurants, ...initialRestaurants]
@@ -163,6 +166,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         }
 
         // 4. Sort (mock items have high ratings, so they'll stay near top with 'recommended')
+        // 4. Sort (mock items have high ratings, so they'll stay near top with 'recommended')
         result.sort((a, b) => {
             if (sortBy === 'distance' && location) {
                 return (a.distance || 0) - (b.distance || 0);
@@ -183,9 +187,68 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         });
 
         return result;
-    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams]);
+    }, [selectedCategory, showOpenOnly, radius, sortBy, initialRestaurants, location, timeTick, searchParams, showMocks, mockRestaurants]);
 
+    // Derive Available Categories from current "scope" (Radius + OpenNow)
+    // We do NOT filter by 'selectedCategory' here, so the user can switch categories
+    const availableCategories = useMemo(() => {
+        // 1. Get base set (Radius + OpenNow protected)
+        // We need to re-run the base filters WITHOUT the category filter
+        // Ideally we could refactor the above useMemo to return both, but for now we'll do a lightweight pass
 
+        let pool = showMocks
+            ? [...mockRestaurants, ...initialRestaurants]
+            : initialRestaurants;
+
+        // Apply Live Status
+        pool = pool.map((restaurant) => ({
+            ...restaurant,
+            isOpenNow: computeIsOpenNow(restaurant.openingHours, restaurant.isOpenNow),
+        }));
+
+        // Apply Radius (if location)
+        if (location) {
+            const withDist = addDistanceToRestaurants(pool, location);
+            if (showMocks) {
+                // Mock override
+                withDist.forEach(r => {
+                    if (r.id.startsWith('mock-')) r.distance = 0.1; // @ts-ignore
+                });
+            }
+            if (radius <= 50) {
+                pool = withDist.filter(r => (r.distance || 0) <= radius);
+            } else {
+                pool = withDist;
+            }
+        }
+
+        // Apply Open Now
+        if (showOpenOnly) {
+            pool = pool.filter(r => r.isOpenNow);
+        }
+
+        // Now count categories
+        const counts: Record<string, number> = {};
+        pool.forEach(r => {
+            r.categories.forEach((rawCat: string) => {
+                let cat = rawCat;
+                if (cat === 'Halal') return; // Skip generic tag
+                if (cat === 'meal_takeaway') cat = 'Takeaway';
+                if (cat === 'meal_delivery') cat = 'Delivery';
+
+                // Normalize slightly? Or just strict string match
+                counts[cat] = (counts[cat] || 0) + 1;
+            });
+        });
+
+        // Sort by count
+        const sorted = Object.entries(counts)
+            .sort(([, countA], [, countB]) => countB - countA)
+            .map(([cat]) => cat);
+
+        return ["All", ...sorted];
+
+    }, [initialRestaurants, location, radius, showOpenOnly, showMocks]); // mockRestaurants is internal, showMocks is dependent on searchParams
 
     return (
         <div
@@ -221,6 +284,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                     onSelect={setSelectedCategory}
                     showOpenOnly={showOpenOnly}
                     onToggleOpen={setShowOpenOnly}
+                    availableCategories={availableCategories}
                 />
 
                 {/* Sub-Header: Filters & Location Status */}
