@@ -10,7 +10,6 @@ import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { addDistanceToRestaurants, type RestaurantWithDistance } from '@/lib/restaurants';
-import { motion, AnimatePresence } from 'framer-motion';
 import { RestaurantCardSkeleton } from '@/components/RestaurantCardSkeleton';
 import { MapSkeleton } from '@/components/MapSkeleton';
 import { computeIsOpenNow } from '@/lib/hours';
@@ -41,7 +40,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const { location, loading: locationLoading, requestLocation, error: locationError } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
     const [timeTick, setTimeTick] = useState(0);
-    const [visibleCount, setVisibleCount] = useState(24);
+    const [visibleCount, setVisibleCount] = useState(12);
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
     const hasPromptedLocation = useRef(false);
 
@@ -71,7 +70,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        setVisibleCount(24);
+        setVisibleCount(12);
     }, [selectedCategory, showOpenOnly, showCertifiedOnly, radius, sortBy, view]);
 
     useEffect(() => {
@@ -232,7 +231,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             (entries) => {
                 const entry = entries[0];
                 if (entry?.isIntersecting) {
-                    setVisibleCount((count) => Math.min(count + 24, filteredRestaurants.length));
+                    setVisibleCount((count) => Math.min(count + 12, filteredRestaurants.length));
                 }
             },
             { rootMargin: '400px 0px' }
@@ -450,24 +449,20 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                         ))}
                     </div>
                 ) : filteredRestaurants.length > 0 ? (
-                    <AnimatePresence mode="popLayout">
+                    <div className="space-y-4">
                         {visibleRestaurants.map((restaurant, index) => (
-                            <motion.div
+                            <div
                                 key={restaurant.id}
-                                layout
-                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.2 }}
-                                className="relative"
+                                className="relative animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-backwards"
+                                style={{ animationDelay: `${index < 6 ? index * 50 : 0}ms` }}
                             >
                                 <RestaurantCard
                                     data={{ ...restaurant, distance: restaurant.distance ?? undefined }}
                                     priority={index < 2}
                                 />
-                            </motion.div>
+                            </div>
                         ))}
-                    </AnimatePresence>
+                    </div>
                 ) : (
                     <div className="text-center py-20 text-zinc-500">
                         <p className="mb-4">No match found inside {radius}km.</p>

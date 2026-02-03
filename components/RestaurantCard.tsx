@@ -33,7 +33,7 @@ export function RestaurantCard({
                     alt={data.name}
                     seed={data.categories[0] || data.name}
                     className="transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, 420px"
+                    sizes="(max-width: 640px) calc(100vw - 32px), 416px"
                     priority={priority}
                     quality={60}
                 />

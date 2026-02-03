@@ -1,8 +1,6 @@
-'use client';
-
 import { cn } from '@/lib/utils';
-import { Clock, ShieldCheck } from 'lucide-react';
-import { useRef } from 'react';
+import { Clock, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface CategoryFilterProps {
     selected: string;
@@ -24,6 +22,17 @@ export function CategoryFilter({
     availableCategories
 }: CategoryFilterProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Limit visible categories unless expanded
+    const VISIBLE_LIMIT = 12;
+    // Always include "All" + top 11, OR all.
+    // "All" is index 0.
+    const visibleCategories = isExpanded
+        ? availableCategories
+        : availableCategories.slice(0, VISIBLE_LIMIT + 1); // +1 because "All" is included
+
+    const hasHidden = availableCategories.length > VISIBLE_LIMIT + 1;
 
     return (
         <div className="py-3">
@@ -61,7 +70,7 @@ export function CategoryFilter({
 
                 <div className="w-px h-6 bg-[var(--glass-border)] shrink-0 mx-1" />
 
-                {availableCategories.map((cat) => {
+                {visibleCategories.map((cat) => {
                     const isSelected = selected === cat || (cat === "All" && selected === "");
                     return (
                         <button
@@ -78,6 +87,26 @@ export function CategoryFilter({
                         </button>
                     );
                 })}
+
+                {/* Show More / Less Toggle */}
+                {hasHidden && (
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] flex items-center gap-1"
+                    >
+                        {isExpanded ? (
+                            <>
+                                <ChevronUp className="w-3 h-3" />
+                                Less
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown className="w-3 h-3" />
+                                More
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
         </div >
     );
