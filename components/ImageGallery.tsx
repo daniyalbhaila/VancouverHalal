@@ -17,6 +17,10 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
+    const [openingIndex, setOpeningIndex] = useState(0);
+    const [isClosing, setIsClosing] = useState(false);
+    const [hasScrolled, setHasScrolled] = useState(false);
+
     const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fsScrollRef = useRef<HTMLDivElement>(null);
@@ -57,6 +61,9 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             const index = Math.round(el.scrollLeft / el.clientWidth);
             if (index !== currentIndex) {
                 setCurrentIndex(index);
+                if (isFullScreen) {
+                    setHasScrolled(true);
+                }
             }
         };
 
@@ -94,6 +101,15 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         }
     }, [isFullScreen]);
     // Note: removed [currentIndex] from above deps to avoid re-scrolling if index changes internally
+
+    // Reset scroll tracking when opening
+    useEffect(() => {
+        if (isFullScreen) {
+            setOpeningIndex(currentIndex);
+            setHasScrolled(false);
+            setIsClosing(false);
+        }
+    }, [isFullScreen]); // Only trigger on open toggle
 
     // Prevent scrolling on body when FS is open
     useEffect(() => {
@@ -155,9 +171,18 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                 setIsFullScreen(true);
             } else {
                 // In Full Screen, center tap closes
-                setIsFullScreen(false);
+                handleClose();
             }
         }
+    };
+
+    const handleClose = () => {
+        setIsClosing(true);
+        // Small timeout to allow render with layoutId before closing
+        setTimeout(() => {
+            setIsFullScreen(false);
+            setIsClosing(false);
+        }, 10);
     };
 
     return (
@@ -172,7 +197,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                 >
                     {validImages.map((src, i) => (
                         <motion.div
-                            layoutId={`image-${src}-${i}`} // Shared ID
+                            layoutId={`image-${src}-${i}`} // Shared ID always on thumbnail
                             key={`${src}-${i}`}
                             className="flex-none w-full h-full relative snap-center"
                         >
@@ -226,10 +251,14 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
                             className="fixed inset-0 z-[9999] bg-black/95 flex flex-col"
+                            onClick={handleClose}
                         >
                             {/* Close Button */}
                             <button
-                                onClick={() => setIsFullScreen(false)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleClose();
+                                }}
                                 className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full text-white/80 hover:text-white backdrop-blur-md transition-colors"
                             >
                                 <X className="w-6 h-6" />
@@ -240,41 +269,52 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                 ref={fsScrollRef}
                                 className="flex-1 w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar touch-pan-x flex items-center"
                                 style={{ scrollBehavior: 'smooth' }}
-                                onClick={(e) => handleTapNavigation(e, fsScrollRef, false)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTapNavigation(e, fsScrollRef, false);
+                                }}
                             >
-                                {validImages.map((src, i) => (
-                                    <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
-                                        <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
-                                            {i === currentIndex && !isScrolling ? (
-                                                <motion.div
-                                                    layoutId={`image-${src}-${i}`}
-                                                    className="relative w-full h-full flex items-center justify-center p-0 md:p-8"
-                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                >
-                                                    <RestaurantImage
-                                                        src={src}
-                                                        alt={`${alt} full screen ${i + 1}`}
-                                                        seed={alt}
-                                                        className="object-contain"
-                                                        // RestaurantImage uses fill=true internally
-                                                        priority={true}
-                                                    />
-                                                </motion.div>
-                                            ) : (
-                                                // Non-active images just render normally
-                                                // OR if scrolling, render normally to avoid layout jumps
-                                                <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
-                                                    <RestaurantImage
-                                                        src={src}
-                                                        alt={`${alt} full screen ${i + 1}`}
-                                                        seed={alt}
-                                                        className="object-contain"
-                                                    />
-                                                </div>
-                                            )}
+                                {validImages.map((src, i) => {
+                                    // Determine if this image should have layoutId active
+                                    const isTarget = i === currentIndex;
+                                    const showLayoutId = isTarget && (
+                                        isClosing || // Always show on close to shrink back
+                                        (i === openingIndex && !hasScrolled && !isScrolling) // Show on open IF we haven't moved
+                                    );
+
+                                    return (
+                                        <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
+                                            <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
+                                                {showLayoutId ? (
+                                                    <motion.div
+                                                        layoutId={`image-${src}-${i}`}
+                                                        className="relative w-full h-full flex items-center justify-center p-0 md:p-8"
+                                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                    >
+                                                        <RestaurantImage
+                                                            src={src}
+                                                            alt={`${alt} full screen ${i + 1}`}
+                                                            seed={alt}
+                                                            className="object-contain"
+                                                            // RestaurantImage uses fill=true internally
+                                                            priority={true}
+                                                        />
+                                                    </motion.div>
+                                                ) : (
+                                                    // Non-active images just render normally
+                                                    <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
+                                                        <RestaurantImage
+                                                            src={src}
+                                                            alt={`${alt} full screen ${i + 1}`}
+                                                            seed={alt}
+                                                            className="object-contain"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {/* FS Bottom Bar */}
