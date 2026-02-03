@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import BottomNav from "@/components/BottomNav";
 import { Providers } from "@/components/Providers";
 import Script from "next/script";
+import { PostHogProvider } from "@/app/providers/PostHogProvider";
+import { Analytics } from "@/components/Analytics";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", style: "italic", preload: false });
@@ -50,13 +52,16 @@ export default function RootLayout({
         newsreader.variable
       )}>
         <Providers>
-          <main className="pb-28">
-            {children}
-          </main>
+          <PostHogProvider>
+            <main className="pb-28">
+              {children}
+            </main>
 
-          <Suspense fallback={null}>
-            <BottomNav />
-          </Suspense>
+            <Suspense fallback={null}>
+              <BottomNav />
+            </Suspense>
+            <Analytics />
+          </PostHogProvider>
         </Providers>
 
         <Script id="userjot-sdk" strategy="lazyOnload">

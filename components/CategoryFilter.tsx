@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Clock, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRef, useState } from 'react';
+import posthog from 'posthog-js';
 
 interface CategoryFilterProps {
     selected: string;
@@ -34,6 +35,24 @@ export function CategoryFilter({
 
     const hasHidden = availableCategories.length > VISIBLE_LIMIT + 1;
 
+    const handleCategorySelect = (category: string) => {
+        const newValue = category === "All" ? "" : category;
+        onSelect(newValue);
+        posthog.capture('filter_category_changed', { category: newValue || 'All' });
+    };
+
+    const handleOpenToggle = () => {
+        const newState = !showOpenOnly;
+        onToggleOpen(newState);
+        posthog.capture('filter_open_now_toggled', { active: newState });
+    };
+
+    const handleCertifiedToggle = () => {
+        const newState = !showCertifiedOnly;
+        onToggleCertified(newState);
+        posthog.capture('filter_certified_toggled', { active: newState });
+    };
+
     return (
         <div className="py-3">
             <div
@@ -42,7 +61,7 @@ export function CategoryFilter({
             >
                 {/* Certified Toggle - Primary Filter */}
                 <button
-                    onClick={() => onToggleCertified(!showCertifiedOnly)}
+                    onClick={handleCertifiedToggle}
                     className={cn(
                         "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0",
                         showCertifiedOnly
@@ -56,7 +75,7 @@ export function CategoryFilter({
 
                 {/* Open Now Toggle */}
                 <button
-                    onClick={() => onToggleOpen(!showOpenOnly)}
+                    onClick={handleOpenToggle}
                     className={cn(
                         "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0",
                         showOpenOnly
@@ -75,7 +94,7 @@ export function CategoryFilter({
                     return (
                         <button
                             key={cat}
-                            onClick={() => onSelect(cat === "All" ? "" : cat)}
+                            onClick={() => handleCategorySelect(cat)}
                             className={cn(
                                 "px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all",
                                 isSelected

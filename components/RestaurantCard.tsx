@@ -7,6 +7,8 @@ import { TrustBadge } from '@/components/TrustBadge';
 
 import Link from 'next/link';
 
+import posthog from 'posthog-js';
+
 export function RestaurantCard({
     data,
     priority = false
@@ -14,6 +16,15 @@ export function RestaurantCard({
     data: RestaurantType & { distance?: number };
     priority?: boolean;
 }) {
+    const handleDirectionsClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        posthog.capture('click_directions', {
+            restaurant_id: data.id,
+            restaurant_name: data.name,
+            restaurant_slug: data.slug,
+        });
+    };
+
     return (
         <div
             className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform block"
@@ -116,7 +127,7 @@ export function RestaurantCard({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 pl-2 pr-3 py-1.5 bg-zinc-900 hover:bg-zinc-700 text-white rounded-full text-[10px] font-bold transition-colors pointer-events-auto cursor-pointer relative z-30 shadow-lg"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={handleDirectionsClick}
                     >
                         <Navigation className="w-3 h-3" />
                         <span>Directions</span>
