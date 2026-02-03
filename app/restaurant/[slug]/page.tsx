@@ -257,16 +257,6 @@ export default async function RestaurantPage({
                         rating={data.rating}
                     />
 
-                    {/* Location - Map Preview */}
-                    <LocationMap
-                        lat={data.location.lat}
-                        lng={data.location.lng}
-                        name={data.name}
-                        address={data.address}
-                        googleMapsUrl={directionsUrl}
-                        rating={data.rating}
-                    />
-
                     {/* Dietary Details */}
                     {mockDietaryInfo && (
                         <div className="mt-6 animate-in slide-in-from-bottom-5 fade-in duration-700 delay-200">
