@@ -8,6 +8,7 @@ import { SourceDisclaimer } from './SourceDisclaimer';
 import { ReviewsList } from './ReviewsList';
 import { GoogleReview } from '@/lib/data';
 import { Info, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
 import { DietaryFlags, DietaryInfo } from './DietaryFlags';
 import { TrustBadge, HalalStatus } from './TrustBadge';
 
@@ -16,6 +17,7 @@ type RestaurantContentTabsProps = {
     isOpenNow: boolean;
     location: { lat: number, lng: number };
     name: string;
+    slug: string;
     address: string;
     googleUrl: string;
     rating?: number;
@@ -57,6 +59,16 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                 </button>
             </div>
 
+            <div className="flex items-center justify-between text-xs text-text-secondary mb-4">
+                <span>Not halal or something off?</span>
+                <Link
+                    href={`/report?name=${encodeURIComponent(props.name)}&slug=${encodeURIComponent(props.slug)}`}
+                    className="font-semibold text-text-primary hover:underline"
+                >
+                    Report
+                </Link>
+            </div>
+
             {/* --- TAB CONTENT --- */}
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {activeTab === 'overview' ? (
@@ -81,6 +93,7 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                             googleMapsUrl={props.googleUrl}
                             rating={props.rating || 0}
                         />
+
 
                         {/* Dietary Details */}
                         {props.mockDietaryInfo && (

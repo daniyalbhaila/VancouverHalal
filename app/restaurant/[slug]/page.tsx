@@ -269,16 +269,17 @@ export default async function RestaurantPage({
 
 
                 {/* --- TABBED CONTENT --- */}
-                <RestaurantContentTabs
-                    openingHours={openingHours}
-                    isOpenNow={data.isOpenNow}
-                    location={data.location}
-                    name={data.name}
-                    address={data.googleData?.formatted_address || data.address}
-                    googleUrl={directionsUrl}
-                    rating={data.rating}
-                    reviews={data.googleData?.reviews}
-                    mockDietaryInfo={mockDietaryInfo}
+                    <RestaurantContentTabs
+                        openingHours={openingHours}
+                        isOpenNow={data.isOpenNow}
+                        location={data.location}
+                        name={data.name}
+                        slug={data.slug}
+                        address={data.googleData?.formatted_address || data.address}
+                        googleUrl={directionsUrl}
+                        rating={data.rating}
+                        reviews={data.googleData?.reviews}
+                        mockDietaryInfo={mockDietaryInfo}
                     halalStatus={data.halalStatus}
                 />
 

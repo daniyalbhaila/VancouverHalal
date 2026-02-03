@@ -5,7 +5,7 @@ import { RestaurantCard } from '@/components/RestaurantCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { Loader2, SlidersHorizontal, MapPin } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
@@ -15,6 +15,7 @@ import { RestaurantCardSkeleton } from '@/components/RestaurantCardSkeleton';
 import { MapSkeleton } from '@/components/MapSkeleton';
 import { computeIsOpenNow } from '@/lib/hours';
 import { SourceDisclaimer } from '@/components/SourceDisclaimer';
+import Link from 'next/link';
 
 const MapComponent = dynamic(() => import('@/components/Map'), {
     ssr: false,
@@ -29,6 +30,13 @@ interface HomeClientProps {
 
 export default function HomeClient({ initialRestaurants }: HomeClientProps) {
     const searchParams = useSearchParams();
+    const handleFeedbackClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
+        const uj = (window as any).uj;
+        if (uj && typeof uj.showWidget === 'function') {
+            event.preventDefault();
+            uj.showWidget({ section: 'feedback' });
+        }
+    }, []);
 
     const { location, loading: locationLoading } = useLocation();
     const [view, setView] = useState<'list' | 'map'>('list');
@@ -362,6 +370,25 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                         </div>
                     </div>
                 )}
+
+            </div>
+
+            <div className="px-4 pt-3">
+                <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                        <span>Missing a spot?</span>
+                        <Link href="/suggest" className="font-semibold text-[var(--text-primary)] hover:underline">
+                            Suggest one
+                        </Link>
+                    </div>
+                    <a
+                        href="https://halalmaps.userjot.com/"
+                        onClick={handleFeedbackClick}
+                        className="font-semibold text-[var(--text-primary)] hover:underline"
+                    >
+                        Feedback
+                    </a>
+                </div>
             </div>
 
 
