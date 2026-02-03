@@ -59,3 +59,16 @@ A curated discovery platform for halal restaurants in Vancouver, featuring list 
 -   **"Location not found"**: Ensure your browser has granted location permissions to the site. The app defaults to a fallback location if permission is denied.
 -   **Map visuals missing**: Check developer tools console for MapLibre errors; ensure your network isn't blocking map tile requests.
 -   **Data looks old**: If you just updated the database, wait for the 1-hour revalidation window or manually rebuild the site to clear the cache.
+
+## Automated Enrichment
+
+We use **Apify** to keep restaurant data fresh.
+
+-   **Script**: `scripts/update_images.ts`
+-   **Function**: Crawls Google Maps for each restaurant in the DB.
+-   **Updates**: 
+    -   Images (Gallery)
+    -   Star Ratings & Review Counts
+    -   Opening Hours
+    -   Price Level
+-   **Command**: `npx tsx scripts/update_images.ts` (Requires `APIFY_TOKEN`)

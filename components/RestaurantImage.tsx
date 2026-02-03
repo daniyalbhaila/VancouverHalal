@@ -60,6 +60,7 @@ export function RestaurantImage({
       priority={priority}
       loader={({ src: imageSrc }) => imageSrc}
       unoptimized
+      referrerPolicy="no-referrer"
     />
   );
 }
