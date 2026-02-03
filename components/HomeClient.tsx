@@ -203,11 +203,11 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
             >
                 <div className="flex items-center justify-between mb-1">
                     <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] font-manrope">
-                        Vancouver Halal
+                        Halal Maps
                     </h1>
                 </div>
                 <p className="text-sm font-medium text-[var(--text-secondary)] font-newsreader italic">
-                    Top rated dining & hidden gems
+                    Vancouver's top rated dining guide
                 </p>
             </div>
 
