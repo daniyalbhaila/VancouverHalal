@@ -7,7 +7,13 @@ import { TrustBadge } from '@/components/TrustBadge';
 
 import Link from 'next/link';
 
-export function RestaurantCard({ data }: { data: RestaurantType & { distance?: number } }) {
+export function RestaurantCard({
+    data,
+    priority = false
+}: {
+    data: RestaurantType & { distance?: number };
+    priority?: boolean;
+}) {
     return (
         <div
             className="group relative w-full aspect-[2/1] bg-zinc-900 rounded-2xl overflow-hidden shadow-md mb-3 mx-auto max-w-md transform-gpu ring-1 ring-black/5 active:scale-[0.98] transition-transform block"
@@ -28,6 +34,7 @@ export function RestaurantCard({ data }: { data: RestaurantType & { distance?: n
                     seed={data.categories[0] || data.name}
                     className="transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 500px"
+                    priority={priority}
                 />
 
                 {/* Gradient Overlays for Readability */}

@@ -305,7 +305,7 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                     </div>
                 ) : filteredRestaurants.length > 0 ? (
                     <AnimatePresence mode="popLayout">
-                        {filteredRestaurants.map((restaurant) => (
+                        {filteredRestaurants.map((restaurant, index) => (
                             <motion.div
                                 key={restaurant.id}
                                 layout
@@ -315,7 +315,10 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                                 transition={{ duration: 0.2 }}
                                 className="relative"
                             >
-                                <RestaurantCard data={{ ...restaurant, distance: restaurant.distance ?? undefined }} />
+                                <RestaurantCard
+                                    data={{ ...restaurant, distance: restaurant.distance ?? undefined }}
+                                    priority={index < 4}
+                                />
                             </motion.div>
                         ))}
                     </AnimatePresence>
