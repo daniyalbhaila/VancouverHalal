@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { RestaurantImage } from './RestaurantImage';
 import { Camera, X } from 'lucide-react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type ImageGalleryProps = {
     images: string[];
@@ -17,16 +17,12 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
-    const [openingIndex, setOpeningIndex] = useState(0);
-    const [isClosing, setIsClosing] = useState(false);
-    const [hasScrolled, setHasScrolled] = useState(false);
 
     const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fsScrollRef = useRef<HTMLDivElement>(null);
 
     // Initial Scroll Position Callback
-    // This runs when the ref attaches, allowing us to set scrollLeft BEFORE paint/animation
     const setFsScrollRef = (node: HTMLDivElement | null) => {
         fsScrollRef.current = node;
         if (node && isFullScreen) {
@@ -41,8 +37,6 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         if (!el) return;
 
         const handleScroll = () => {
-            // Only update index from main scroll if NOT full screen
-            // (Otherwise the background sync might fight us, though unlikely given the check below)
             if (!isFullScreen) {
                 const index = Math.round(el.scrollLeft / el.clientWidth);
                 if (index !== currentIndex) {
@@ -53,7 +47,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
 
         el.addEventListener('scroll', handleScroll, { passive: true });
         return () => el.removeEventListener('scroll', handleScroll);
-    }, [isFullScreen, currentIndex]); // Add dependencies to be safe
+    }, [isFullScreen, currentIndex]);
 
     // Track scroll position for FULL SCREEN gallery
     useEffect(() => {
@@ -61,7 +55,6 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         if (!el) return;
 
         const handleScroll = () => {
-            // Set scrolling state
             setIsScrolling(true);
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
             scrollTimeout.current = setTimeout(() => {
@@ -71,9 +64,6 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             const index = Math.round(el.scrollLeft / el.clientWidth);
             if (index !== currentIndex) {
                 setCurrentIndex(index);
-                if (isFullScreen) {
-                    setHasScrolled(true);
-                }
             }
         };
 
@@ -82,7 +72,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
             el.removeEventListener('scroll', handleScroll);
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
         };
-    }, [isFullScreen, currentIndex]); // Check these deps carefully. Re-attaching listener is fine.
+    }, [isFullScreen, currentIndex]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -96,23 +86,10 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         if (isFullScreen && scrollRef.current) {
             scrollRef.current.scrollTo({
                 left: currentIndex * scrollRef.current.clientWidth,
-                behavior: 'instant' // Instant so it's ready when we close
+                behavior: 'instant'
             });
         }
     }, [isFullScreen, currentIndex]);
-
-    // Remove the old useLayoutEffect that did the initial scroll
-    // We do it in the ref callback now.
-
-    // Reset scroll tracking when opening
-    useEffect(() => {
-        if (isFullScreen) {
-            // Force scroll on mount just in case ref callback missed it (e.g. resize)
-            if (fsScrollRef.current) {
-                fsScrollRef.current.scrollLeft = currentIndex * fsScrollRef.current.clientWidth;
-            }
-        }
-    }, [isFullScreen]); // Removed logic that was moved to handleTapNavigation
 
     // Prevent scrolling on body when FS is open
     useEffect(() => {
@@ -171,28 +148,19 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
         // Center -> Action
         else {
             if (isMain) {
-                setOpeningIndex(currentIndex);
-                setHasScrolled(false);
-                setIsClosing(false);
                 setIsFullScreen(true);
             } else {
-                // In Full Screen, center tap closes
                 handleClose();
             }
         }
     };
 
     const handleClose = () => {
-        setIsClosing(true);
-        // Small timeout to allow render with layoutId before closing
-        setTimeout(() => {
-            setIsFullScreen(false);
-            setIsClosing(false);
-        }, 50);
+        setIsFullScreen(false);
     };
 
     return (
-        <LayoutGroup>
+        <>
             {/* Main Inline Gallery */}
             <div className={cn("relative group", className)}>
                 <div
@@ -202,8 +170,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                     onClick={(e) => handleTapNavigation(e, scrollRef, true)}
                 >
                     {validImages.map((src, i) => (
-                        <motion.div
-                            layoutId={`image-${src}-${i}`} // Shared ID always on thumbnail
+                        <div
                             key={`${src}-${i}`}
                             className="flex-none w-full h-full relative snap-center"
                         >
@@ -216,7 +183,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                 className="bg-zinc-100 dark:bg-zinc-900 object-cover w-full h-full"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50 pointer-events-none" />
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
 
@@ -248,7 +215,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
 
             {/* Full Screen Overlay - Portaled */}
             {typeof document !== 'undefined' && createPortal(
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {isFullScreen && (
                         <motion.div
                             key="lightbox-overlay"
@@ -280,65 +247,36 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                                     handleTapNavigation(e, fsScrollRef, false);
                                 }}
                             >
-                                {validImages.map((src, i) => {
-                                    // Determine if this image should have layoutId active
-                                    const isTarget = i === currentIndex;
-                                    const showLayoutId = isTarget && (
-                                        isClosing || // Always show on close to shrink back
-                                        (i === openingIndex && !hasScrolled && !isScrolling) // Show on open IF we haven't moved
-                                    );
-
-                                    return (
-                                        <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
-                                            <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
-                                                {showLayoutId ? (
-                                                    <motion.div
-                                                        layoutId={`image-${src}-${i}`}
-                                                        className="relative w-full h-full flex items-center justify-center p-0 md:p-8"
-                                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                    >
-                                                        <RestaurantImage
-                                                            src={src}
-                                                            alt={`${alt} full screen ${i + 1}`}
-                                                            seed={alt}
-                                                            className="object-contain"
-                                                            // RestaurantImage uses fill=true internally
-                                                            priority={true}
-                                                        />
-                                                    </motion.div>
-                                                ) : (
-                                                    // Non-active images just render normally
-                                                    <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
-                                                        <RestaurantImage
-                                                            src={src}
-                                                            alt={`${alt} full screen ${i + 1}`}
-                                                            seed={alt}
-                                                            className="object-contain"
-                                                        />
-                                                    </div>
-                                                )}
+                                {validImages.map((src, i) => (
+                                    <div key={`${src}-fs-${i}`} className="flex-none w-full h-full flex items-center justify-center snap-center relative p-2 md:p-8">
+                                        <div className="relative w-full h-full max-h-[85vh] max-w-[100vw] flex items-center justify-center">
+                                            <div className="relative w-full h-full flex items-center justify-center p-0 md:p-8">
+                                                <RestaurantImage
+                                                    src={src}
+                                                    alt={`${alt} full screen ${i + 1}`}
+                                                    seed={alt}
+                                                    className="object-contain"
+                                                    priority={i === currentIndex} // Only prioritize current
+                                                />
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
 
                             {/* FS Bottom Bar */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
+                            <div
                                 className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none"
                             >
                                 <div className="px-4 py-2 bg-zinc-900/80 rounded-full text-white font-bold backdrop-blur border border-white/10 text-sm">
                                     {currentIndex + 1} / {validImages.length}
                                 </div>
-                            </motion.div>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>,
                 document.body
             )}
-        </LayoutGroup>
+        </>
     );
 }
