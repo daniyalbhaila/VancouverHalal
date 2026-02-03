@@ -37,8 +37,8 @@ export function RestaurantCard({
                     priority={priority}
                 />
 
-                {/* Gradient Overlays for Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90" />
+                {/* Gradient Overlays for Readability - Stronger bottom scrim */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
             </div>
 
             {/* Top Badges - Z-Index 10 to float above Link if interactive, otherwise can be under */}
