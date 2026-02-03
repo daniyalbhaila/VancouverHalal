@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function ReportIssueClient() {
   const searchParams = useSearchParams();
@@ -13,6 +13,10 @@ export default function ReportIssueClient() {
   const [issueType, setIssueType] = useState('');
   const [errors, setErrors] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setErrors(null);
+  }, [step]);
 
   const title = useMemo(() => {
     if (!name) return 'Report an issue';
@@ -48,7 +52,7 @@ export default function ReportIssueClient() {
         <form
           name="report-issue"
           method="POST"
-          action="/__forms.html"
+          action="/"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
           onSubmit={async (event) => {
@@ -79,7 +83,7 @@ export default function ReportIssueClient() {
             const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 
             try {
-              const response = await fetch('/__forms.html', {
+              const response = await fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: params.toString(),

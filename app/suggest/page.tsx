@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 
 export default function SuggestPage() {
@@ -12,6 +12,10 @@ export default function SuggestPage() {
   const [halalStatus, setHalalStatus] = useState('');
   const [errors, setErrors] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setErrors(null);
+  }, [step]);
 
   const validateBasics = () => {
     if (!name.trim()) {
@@ -65,7 +69,7 @@ export default function SuggestPage() {
         <form
           name="suggest-spot"
           method="POST"
-          action="/__forms.html"
+          action="/"
           data-netlify="true"
           data-netlify-honeypot="bot-field"
           onSubmit={async (event) => {
@@ -92,7 +96,7 @@ export default function SuggestPage() {
             const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 
             try {
-              const response = await fetch('/__forms.html', {
+              const response = await fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: params.toString(),
