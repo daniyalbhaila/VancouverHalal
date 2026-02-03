@@ -23,9 +23,38 @@ export function ReviewsList({ reviews, googleUrl, layout = 'horizontal' }: Revie
 
     if (topReviews.length === 0) return null;
 
+    const Header = () => (
+        <div className="flex items-center justify-between px-1 mb-3">
+            <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold font-manrope text-text-primary">
+                    Guest Reviews
+                </h3>
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-border/50">
+                    {/* Google Logo SVG */}
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                        alt="Google"
+                        className="w-3 h-3"
+                    />
+                    <span className="text-[10px] font-medium text-text-secondary">Posted on Google</span>
+                </div>
+            </div>
+            {googleUrl && (
+                <a
+                    href={googleUrl}
+                    target="_blank"
+                    className="text-xs font-bold text-primary hover:underline"
+                >
+                    View all
+                </a>
+            )}
+        </div>
+    );
+
     if (layout === 'vertical') {
         return (
             <div className="space-y-4">
+                <Header />
                 {topReviews.map((review, i) => (
                     <div key={`${review.name}-${i}`} className="w-full">
                         <ReviewCard review={review} fullWidth />
@@ -37,32 +66,7 @@ export function ReviewsList({ reviews, googleUrl, layout = 'horizontal' }: Revie
 
     return (
         <div className="space-y-3 py-2">
-
-            <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold font-manrope text-text-primary">
-                        Guest Reviews
-                    </h3>
-                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-border/50">
-                        {/* Google Logo SVG */}
-                        <img
-                            src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                            alt="Google"
-                            className="w-3 h-3"
-                        />
-                        <span className="text-[10px] font-medium text-text-secondary">Posted on Google</span>
-                    </div>
-                </div>
-                {googleUrl && (
-                    <a
-                        href={googleUrl}
-                        target="_blank"
-                        className="text-xs font-bold text-primary hover:underline"
-                    >
-                        View all
-                    </a>
-                )}
-            </div>
+            <Header />
 
             {/* Horizontal Carousel */}
             <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-4 -mx-4 px-4 no-scrollbar touch-pan-x">
