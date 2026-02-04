@@ -31,7 +31,7 @@ export function RestaurantActions({ phone, website, directionsUrl, variant = 'de
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => trackClick('click_website')}
-                        className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl active:scale-95 transition-all text-[var(--text-primary)]"
+                        className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-bg-subtle/50 hover:bg-bg-subtle rounded-xl active:scale-95 transition-all text-text-primary"
                     >
                         <Globe className="w-5 h-5" />
                         <span className="text-[10px] font-bold">Website</span>
@@ -42,7 +42,7 @@ export function RestaurantActions({ phone, website, directionsUrl, variant = 'de
                     <a
                         href={`tel:${phone}`}
                         onClick={() => trackClick('click_call')}
-                        className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl active:scale-95 transition-all text-[var(--text-primary)]"
+                        className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-bg-subtle/50 hover:bg-bg-subtle rounded-xl active:scale-95 transition-all text-text-primary"
                     >
                         <Phone className="w-5 h-5" />
                         <span className="text-[10px] font-bold">Call</span>
@@ -70,7 +70,7 @@ export function RestaurantActions({ phone, website, directionsUrl, variant = 'de
                 <a
                     href={`tel:${phone}`}
                     onClick={() => trackClick('click_call')}
-                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/80 rounded-xl text-sm font-bold transition-colors text-[var(--text-primary)]"
+                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-bg-subtle hover:bg-bg-subtle/80 rounded-xl text-sm font-bold transition-colors text-text-primary"
                 >
                     <Phone className="w-4 h-4" /> Call
                 </a>
@@ -81,7 +81,7 @@ export function RestaurantActions({ phone, website, directionsUrl, variant = 'de
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackClick('click_website')}
-                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/80 rounded-xl text-sm font-bold transition-colors text-[var(--text-primary)]"
+                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-bg-subtle hover:bg-bg-subtle/80 rounded-xl text-sm font-bold transition-colors text-text-primary"
                 >
                     <Globe className="w-4 h-4" /> Website
                 </a>
