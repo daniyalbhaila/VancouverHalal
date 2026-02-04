@@ -11,27 +11,27 @@ export default function manifest(): MetadataRoute.Manifest {
         theme_color: '#ffffff',
         icons: [
             {
-                src: '/favicon.ico',
+                src: '/favicon.svg',
                 sizes: 'any',
-                type: 'image/x-icon',
+                type: 'image/svg+xml',
             },
             {
-                src: '/icon/192',
+                src: '/api/icons/192',
                 sizes: '192x192',
                 type: 'image/png',
             },
             {
-                src: '/icon/256',
+                src: '/api/icons/256',
                 sizes: '256x256',
                 type: 'image/png',
             },
             {
-                src: '/icon/512',
+                src: '/api/icons/512',
                 sizes: '512x512',
                 type: 'image/png',
             },
             {
-                src: '/apple-icon', // Uses the dynamic apple icon generation
+                src: '/apple-icon', // Uses the standard Next.js generated route
                 sizes: '180x180',
                 type: 'image/png',
             }
