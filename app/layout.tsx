@@ -47,6 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Halal Maps - Vancouver",
     description: "The ultimate guide to the best Halal food in Vancouver, BC.",
+    images: ['/og-image.png'],
   },
   icons: {
     icon: [
