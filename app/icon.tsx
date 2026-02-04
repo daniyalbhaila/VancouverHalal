@@ -1,17 +1,44 @@
 import { ImageResponse } from 'next/og';
 
 // Route segment config
-export const runtime = 'edge';
+
 
 // Image metadata
-export const size = {
-    width: 32,
-    height: 32,
-};
-export const contentType = 'image/png';
+export function generateImageMetadata() {
+    return [
+        {
+            contentType: 'image/png',
+            size: { width: 32, height: 32 },
+            id: '32',
+        },
+        {
+            contentType: 'image/png',
+            size: { width: 96, height: 96 },
+            id: '96',
+        },
+        {
+            contentType: 'image/png',
+            size: { width: 192, height: 192 },
+            id: '192',
+        },
+        {
+            contentType: 'image/png',
+            size: { width: 256, height: 256 },
+            id: '256',
+        },
+        {
+            contentType: 'image/png',
+            size: { width: 512, height: 512 },
+            id: '512',
+        },
+    ]
+}
 
 // Image generation
-export default function Icon() {
+export default function Icon({ id }: { id: string }) {
+    // Default to 32x32 if id is missing (shouldn't happen with generateImageMetadata)
+    const size = parseInt(id) || 32;
+
     return new ImageResponse(
         (
             // ImageResponse JSX element
@@ -26,10 +53,10 @@ export default function Icon() {
                     borderRadius: '22%', // Squircle-like shape
                 }}
             >
-                {/* Vector Map Pin */}
+                {/* Vector Map Pin - Scaled based on size */}
                 <svg
-                    width="20"
-                    height="20"
+                    width={Math.floor(size * 0.625)} // 20 for 32, 120 for 192
+                    height={Math.floor(size * 0.625)}
                     viewBox="0 0 24 24"
                     fill="white"
                     xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +74,8 @@ export default function Icon() {
         ),
         // ImageResponse options
         {
-            ...size,
+            width: size,
+            height: size,
         }
     );
 }

@@ -46,6 +46,10 @@ export const metadata: Metadata = {
       { url: '/apple-icon' },
     ],
   },
+  appleWebApp: {
+    title: "Halal Maps",
+    statusBarStyle: "default",
+  },
   manifest: '/manifest.webmanifest',
 };
 
