@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
-// Route segment config (using default Node/Serverless runtime)
-
+// Route segment config
+export const runtime = 'edge';
 
 // Image metadata
 export const alt = 'Halal Maps - Vancouver\'s Top Rated Dining Guide';
@@ -13,6 +13,11 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image() {
+    // Font loading
+    const manropeBold = await fetch(
+        new URL('https://fonts.gstatic.com/s/manrope/v14/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FN_C-bw.woff2', import.meta.url)
+    ).then((res) => res.arrayBuffer());
+
     return new ImageResponse(
         (
             <div
@@ -24,7 +29,7 @@ export default async function Image() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontFamily: 'sans-serif',
+                    fontFamily: 'Manrope',
                 }}
             >
                 {/* Background Gradient Effect */}
@@ -118,6 +123,14 @@ export default async function Image() {
         ),
         {
             ...size,
+            fonts: [
+                {
+                    name: 'Manrope',
+                    data: manropeBold,
+                    style: 'normal',
+                    weight: 700,
+                },
+            ],
         }
     );
 }
