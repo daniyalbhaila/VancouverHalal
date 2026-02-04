@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
-// Route segment config
-export const runtime = 'edge';
+// Route segment config (using default Node/Serverless runtime)
+
 
 // Image metadata
 export const alt = 'Halal Maps - Vancouver\'s Top Rated Dining Guide';
