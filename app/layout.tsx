@@ -17,6 +17,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  themeColor: '#ffffff',
 };
 
 export const metadata: Metadata = {
@@ -36,6 +37,16 @@ export const metadata: Metadata = {
     title: "Halal Maps - Vancouver",
     description: "The ultimate guide to the best Halal food in Vancouver, BC.",
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-icon' },
+    ],
+  },
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({
