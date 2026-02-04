@@ -95,6 +95,7 @@ export default async function Image() {
                                 strokeWidth="3"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
+                                fill="white"
                             />
                             <circle cx="12" cy="10" r="3" fill="#047857" />
                         </g>
