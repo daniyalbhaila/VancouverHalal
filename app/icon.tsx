@@ -64,7 +64,7 @@ export default function Icon({ id }: { id: string }) {
                     <path
                         d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z"
                         stroke="white"
-                        strokeWidth="2"
+                        strokeWidth={size <= 48 ? 3 : 2}
                         strokeLinecap="round"
                         strokeLinejoin="round"
                     />
