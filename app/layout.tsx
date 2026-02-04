@@ -40,6 +40,9 @@ export const metadata: Metadata = {
       },
     ],
   },
+  other: {
+    'og:logo': 'https://halalmaps.app/favicon.svg',
+  },
   twitter: {
     card: 'summary_large_image',
     title: "Halal Maps - Vancouver",
