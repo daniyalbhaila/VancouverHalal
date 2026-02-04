@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Halal Maps | Top Rated Halal Restaurants in Vancouver',
     description: 'Find the best accessible Halal food in Vancouver, BC using Halal Maps.',
+    url: 'https://halalmaps.app',
+    siteName: 'Halal Maps',
+    locale: 'en_US',
     type: 'website',
   }
 };
