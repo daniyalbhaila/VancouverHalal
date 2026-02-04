@@ -28,7 +28,7 @@ export default function RestaurantLoading() {
             {/* Content Area */}
             <div className="px-5 -mt-8 relative z-10 pb-32">
                 {/* Floating Header Card */}
-                <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-lg rounded-2xl p-5 shadow-xl border border-border/50">
+                <div className="bg-bg-card/90 backdrop-blur-lg rounded-2xl p-5 shadow-xl border border-border/50">
                     <div className="flex justify-between items-start mb-2">
                         <Skeleton className="h-8 w-48 rounded-lg" />
                         <Skeleton className="h-8 w-16 rounded-lg" />
@@ -45,8 +45,8 @@ export default function RestaurantLoading() {
                 </div>
 
                 {/* Tabs Skeleton */}
-                <div className="mt-6 flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl max-w-sm mx-auto">
-                    <div className="flex-1 py-2.5 px-4 bg-white dark:bg-zinc-700 rounded-lg shadow-sm mx-0.5">
+                <div className="mt-6 flex p-1 bg-bg-subtle rounded-xl max-w-sm mx-auto">
+                    <div className="flex-1 py-2.5 px-4 bg-bg-card rounded-lg shadow-sm mx-0.5">
                         <Skeleton className="h-4 w-20 mx-auto" />
                     </div>
                     <div className="flex-1 py-2.5 px-4 mx-0.5">
@@ -57,7 +57,7 @@ export default function RestaurantLoading() {
                 {/* Tab Content (Overview) */}
                 <div className="mt-6 space-y-6">
                     {/* Trust Card (Top of Overview) */}
-                    <div className="p-3 rounded-2xl bg-zinc-50 border border-border/50">
+                    <div className="p-3 rounded-2xl bg-bg-subtle/50 border border-border/50">
                         <div className="flex justify-between items-center mb-2">
                             <Skeleton className="h-6 w-32 rounded-lg" />
                         </div>
@@ -65,7 +65,7 @@ export default function RestaurantLoading() {
                     </div>
 
                     {/* Hours */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-border/50">
+                    <div className="bg-bg-card rounded-2xl p-4 border border-border/50">
                         <Skeleton className="h-5 w-32 mb-3" />
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-full" />
@@ -74,7 +74,7 @@ export default function RestaurantLoading() {
                     </div>
 
                     {/* Map Card (Collapsed) */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-border/50 flex items-center gap-3">
+                    <div className="bg-bg-card rounded-2xl p-4 border border-border/50 flex items-center gap-3">
                         <Skeleton className="h-10 w-10 rounded-full shrink-0" />
                         <div className="flex-1">
                             <Skeleton className="h-4 w-24 mb-1" />
