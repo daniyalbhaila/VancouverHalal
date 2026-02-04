@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://halalmaps.app/opengraph-image',
+        url: '/opengraph-image', // Relative path uses metadataBase
         width: 1200,
         height: 630,
         alt: 'Halal Maps - Vancouver',
