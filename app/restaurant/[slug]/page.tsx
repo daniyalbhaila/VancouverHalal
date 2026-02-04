@@ -15,6 +15,7 @@ import { ImageGallery } from "@/components/ImageGallery";
 // import { ReviewsList } from "@/components/ReviewsList"; // Moved to Tabs
 import { RestaurantContentTabs } from "@/components/RestaurantContentTabs";
 import { RestaurantActions } from "@/components/RestaurantActions";
+import { TrackRestaurantView } from "@/components/TrackRestaurantView";
 
 // --- ISR Configuration ---
 // Revalidate this page every hour (3600 seconds)
@@ -199,6 +200,7 @@ export default async function RestaurantPage({
             className="min-h-screen bg-bg-base poub-32"
         >
             <ScrollReset />
+            <TrackRestaurantView restaurant={data} />
 
             {/* Absolute Back Button */}
             <Link

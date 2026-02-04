@@ -15,6 +15,7 @@ function PostHogPageView() {
             if (searchParams.toString()) {
                 url = url + `?${searchParams.toString()}`;
             }
+
             posthog.capture('$pageview', {
                 '$current_url': url,
             });

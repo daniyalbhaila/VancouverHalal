@@ -35,6 +35,14 @@ export function RestaurantCard({
                 href={`/restaurant/${data.slug}`}
                 className="absolute inset-0 z-0"
                 aria-label={`View details for ${data.name}`}
+                onClick={() => {
+                    posthog.capture('click_restaurant_card', {
+                        restaurant_id: data.id,
+                        restaurant_name: data.name,
+                        restaurant_slug: data.slug,
+                        source: 'home_feed'
+                    });
+                }}
             />
 
             {/* Full Background Media - Pointer events none to let clicks pass to Link if needed, but z-0 link covers it anyway */}
