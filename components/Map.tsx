@@ -13,12 +13,15 @@ import Link from 'next/link';
 
 
 
+import { useTheme } from 'next-themes';
+
 interface MapProps {
     restaurants: RestaurantCard[];
     isVisible?: boolean;
 }
 
 export default function Map({ restaurants, isVisible = true }: MapProps) {
+    const { resolvedTheme } = useTheme();
     const mapRef = useRef<maplibregl.Map>(null); // Ref to the map instance
     const { location } = useLocation();
     const hasCentered = useRef(false);
@@ -74,7 +77,7 @@ export default function Map({ restaurants, isVisible = true }: MapProps) {
                 ref={mapRef}
                 center={location ? [location.lng, location.lat] : [defaultCenter.lng, defaultCenter.lat]}
                 zoom={location ? 14 : 12}
-                theme="light"
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
                 attributionControl={false}
             >
                 {/* Remove MapEvents since we rely on native popup behavior now */}

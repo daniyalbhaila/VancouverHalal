@@ -53,17 +53,16 @@
 }
 
 /* Dark Mode - DISABLED via impossible media query */
-@media (max-width: 0px) {
-  :root {
-    --bg-base: #09090b;
-    --bg-card: #18181b;
-    --text-primary: #fafafa;
-    --text-secondary: #a1a1aa;
+/* Dark Mode enabled */
+.dark {
+  --bg-base: #09090b;
+  --bg-card: #18181b;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
 
-    --glass-bg: rgba(24, 24, 27, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: rgba(0, 0, 0, 0.3);
-  }
+  --glass-bg: rgba(24, 24, 27, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
