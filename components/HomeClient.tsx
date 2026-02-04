@@ -3,6 +3,7 @@
 import { RestaurantCard as RestaurantType } from '@/lib/data';
 import { RestaurantCard } from '@/components/RestaurantCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
+import posthog from 'posthog-js';
 import { Loader2, SlidersHorizontal, MapPin } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -49,8 +50,11 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
         const viewParam = searchParams.get('view');
         if (viewParam === 'map') {
             setView('map');
+            posthog.capture('view_toggled', { view: 'map' });
         } else {
             setView('list');
+            // We don't necessarily need to track default list view separately unless toggled back, 
+            // but tracking explict 'map' intent is key.
         }
     }, [searchParams]);
 
@@ -395,19 +399,28 @@ export default function HomeClient({ initialRestaurants }: HomeClientProps) {
                             <span className="text-xs font-bold text-[var(--text-secondary)]">Sort by:</span>
                             <div className="flex bg-[var(--bg-card)] rounded-lg p-1 border border-[var(--glass-border)] shadow-sm w-full">
                                 <button
-                                    onClick={() => setSortBy('recommended')}
+                                    onClick={() => {
+                                        setSortBy('recommended');
+                                        posthog.capture('sort_changed', { sort_by: 'recommended' });
+                                    }}
                                     className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'recommended' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Rec.
                                 </button>
                                 <button
-                                    onClick={() => setSortBy('distance')}
+                                    onClick={() => {
+                                        setSortBy('distance');
+                                        posthog.capture('sort_changed', { sort_by: 'distance' });
+                                    }}
                                     className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'distance' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Dist.
                                 </button>
                                 <button
-                                    onClick={() => setSortBy('rating')}
+                                    onClick={() => {
+                                        setSortBy('rating');
+                                        posthog.capture('sort_changed', { sort_by: 'rating' });
+                                    }}
                                     className={cn("flex-1 px-3 py-1.5 rounded-md text-xs font-bold transition-all", sortBy === 'rating' ? "bg-[var(--text-primary)] text-[var(--bg-base)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]")}
                                 >
                                     Rating

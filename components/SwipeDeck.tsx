@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from 'framer-motion';
+import posthog from 'posthog-js';
 import { RestaurantCard } from '@/lib/data';
 import { X, Heart, RotateCcw, MapPin, Star } from 'lucide-react';
 import { useLocation } from '@/hooks/useLocation';
@@ -221,11 +222,20 @@ export default function SwipeDeck({ restaurants }: SwipeDeckProps) {
     };
 
     const swipe = (newDirection: number) => {
+        const currentCard = cards[currentIndex];
         if (newDirection === 1) {
-            const currentCard = cards[currentIndex];
             if (currentCard) {
                 toggleFavorite(currentCard.id);
             }
+            posthog.capture('swipe_like', {
+                restaurant_id: currentCard?.id,
+                restaurant_name: currentCard?.name,
+            });
+        } else {
+            posthog.capture('swipe_pass', {
+                restaurant_id: currentCard?.id,
+                restaurant_name: currentCard?.name,
+            });
         }
         setPage([currentIndex + 1, newDirection]);
     };

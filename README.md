@@ -60,6 +60,23 @@ A curated discovery platform for halal restaurants in Vancouver, featuring list 
 -   **Map visuals missing**: Check developer tools console for MapLibre errors; ensure your network isn't blocking map tile requests.
 -   **Data looks old**: If you just updated the database, wait for the 1-hour revalidation window or manually rebuild the site to clear the cache.
 
+## Analytics Setup (PostHog)
+
+To enable analytics, add these environment variables:
+
+```env
+NEXT_PUBLIC_POSTHOG_KEY=phc_... (Your Project API Key)
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+**Custom Events Tracked:**
+- `filter_category_changed`: Tracks cuisine filter usage.
+- `filter_open_now_toggled`: Tracks usage of "Open Now" filter.
+- `click_directions`: Tracks clicks on the "Directions" button (Measurement of intent).
+- `view_toggled`: Tracks usage of Map vs List view.
+- `sort_changed`: Tracks usage of sorting (Rating vs Distance).
+- `swipe_like` / `swipe_pass`: Tracks engagement in the Swipe Deck.
+
 ## Automated Enrichment
 
 We use **Apify** to keep restaurant data fresh.
