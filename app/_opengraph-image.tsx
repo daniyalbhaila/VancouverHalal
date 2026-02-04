@@ -13,10 +13,31 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image() {
-    // Font loading
-    const manropeBold = await fetch(
-        new URL('https://fonts.gstatic.com/s/manrope/v14/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FN_C-bw.woff2', import.meta.url)
-    ).then((res) => res.arrayBuffer());
+    // Font loading with fallback
+    let fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 700 }[] | undefined;
+    let fontFamily = 'sans-serif';
+
+    try {
+        const manropeBold = await fetch(
+            new URL('https://fonts.gstatic.com/s/manrope/v14/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FN_C-bw.woff2', import.meta.url)
+        ).then((res) => {
+            if (!res.ok) throw new Error('Failed to load font');
+            return res.arrayBuffer();
+        });
+
+        fonts = [
+            {
+                name: 'Manrope',
+                data: manropeBold,
+                style: 'normal',
+                weight: 700,
+            },
+        ];
+        fontFamily = 'Manrope';
+    } catch (e) {
+        console.error('Failed to load OG font, falling back to system font', e);
+        // Continue without custom font to ensure image serves (200 OK) instead of 500
+    }
 
     return new ImageResponse(
         (
@@ -29,7 +50,7 @@ export default async function Image() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontFamily: 'Manrope',
+                    fontFamily: fontFamily,
                 }}
             >
                 {/* Background Gradient Effect */}
@@ -60,16 +81,22 @@ export default async function Image() {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                     >
-                        <rect width="32" height="32" rx="7" fill="#10b981" />
+                        <defs>
+                            <linearGradient id="paint0_linear" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                <stop stopColor="#34D399" />
+                                <stop offset="1" stopColor="#059669" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="32" height="32" rx="7" fill="url(#paint0_linear)" />
                         <g transform="translate(4,4)">
                             <path
                                 d="M12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2Z"
                                 stroke="white"
-                                strokeWidth="2"
+                                strokeWidth="3"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             />
-                            <circle cx="12" cy="10" r="3" fill="#064e3b" />
+                            <circle cx="12" cy="10" r="3" fill="#047857" />
                         </g>
                     </svg>
                 </div>
@@ -123,14 +150,7 @@ export default async function Image() {
         ),
         {
             ...size,
-            fonts: [
-                {
-                    name: 'Manrope',
-                    data: manropeBold,
-                    style: 'normal',
-                    weight: 700,
-                },
-            ],
+            fonts: fonts,
         }
     );
 }
