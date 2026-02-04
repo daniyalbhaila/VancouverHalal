@@ -54,7 +54,7 @@ export function HoursDisplay({ openingHours, isOpenNow }: HoursDisplayProps) {
                 onClick={() => hasDetailedHours && setIsExpanded(!isExpanded)}
                 className={cn(
                     "w-full flex items-center justify-between p-4 text-left transition-colors",
-                    hasDetailedHours && "hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer"
+                    hasDetailedHours && "hover:bg-bg-subtle cursor-pointer"
                 )}
                 disabled={!hasDetailedHours}
             >

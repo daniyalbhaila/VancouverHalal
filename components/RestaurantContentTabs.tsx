@@ -32,13 +32,13 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
     return (
         <div className="mt-6 min-h-[500px]">
             {/* --- TAB HEADER --- */}
-            <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl mb-6 shadow-inner relative z-10 w-full max-w-sm mx-auto">
+            <div className="flex p-1 bg-bg-subtle rounded-xl mb-6 shadow-inner relative z-10 w-full max-w-sm mx-auto">
                 <button
                     onClick={() => setActiveTab('overview')}
                     className={cn(
                         "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all duration-300",
                         activeTab === 'overview'
-                            ? "bg-white dark:bg-zinc-700 text-text-primary shadow-sm"
+                            ? "bg-bg-card text-text-primary shadow-sm"
                             : "text-text-secondary hover:text-text-primary"
                     )}
                 >
@@ -50,7 +50,7 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                     className={cn(
                         "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all duration-300",
                         activeTab === 'reviews'
-                            ? "bg-white dark:bg-zinc-700 text-text-primary shadow-sm"
+                            ? "bg-bg-card text-text-primary shadow-sm"
                             : "text-text-secondary hover:text-text-primary"
                     )}
                 >
@@ -74,7 +74,7 @@ export function RestaurantContentTabs(props: RestaurantContentTabsProps) {
                 {activeTab === 'overview' ? (
                     <div className="space-y-6">
                         {/* Trust Verification Section */}
-                        <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-zinc-50 border border-border/50">
+                        <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-bg-subtle/50 border border-border/50">
                             <div className="flex items-center justify-between">
                                 <TrustBadge status={props.halalStatus} />
                             </div>

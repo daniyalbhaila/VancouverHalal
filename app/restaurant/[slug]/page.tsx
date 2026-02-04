@@ -227,7 +227,7 @@ export default async function RestaurantPage({
 
             <div className="px-5 -mt-8 relative z-10 pb-32">
                 {/* --- FLOATING HEADER CARD --- */}
-                <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-lg rounded-2xl p-5 shadow-xl border border-border/50">
+                <div className="bg-bg-card/90 backdrop-blur-lg rounded-2xl p-5 shadow-xl border border-border/50">
                     <div className="flex justify-between items-start mb-2">
                         <h1 className="text-2xl font-bold font-manrope text-text-primary leading-tight pr-3">
                             {data.name}
