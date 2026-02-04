@@ -69,13 +69,19 @@ NEXT_PUBLIC_POSTHOG_KEY=phc_... (Your Project API Key)
 NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
-**Custom Events Tracked:**
-- `filter_category_changed`: Tracks cuisine filter usage.
-- `filter_open_now_toggled`: Tracks usage of "Open Now" filter.
-- `click_directions`: Tracks clicks on the "Directions" button (Measurement of intent).
-- `view_toggled`: Tracks usage of Map vs List view.
-- `sort_changed`: Tracks usage of sorting (Rating vs Distance).
-- `swipe_like` / `swipe_pass`: Tracks engagement in the Swipe Deck.
+### 📊 Analytics Events (PostHog)
+| Event Name | Trigger | Properties |
+|------------|---------|------------|
+| `filter_category_changed` | User clicks a category chip | `category`, `source` |
+| `filter_open_now_toggled` | User toggles "Open Now" | `enabled` |
+| `filter_certified_toggled` | User toggles "Certified Only" | `enabled` |
+| `click_directions` | User clicks "Directions" button | `restaurant_name`, `restaurant_id`, `source` |
+| `click_call` | User clicks "Call" button | `restaurant_name`, `restaurant_id` |
+| `click_website` | User clicks "Website" button | `restaurant_name`, `restaurant_id` |
+| `view_toggled` | User switches Map/List view | `view` (map/list) |
+| `swipe_like` / `swipe_pass` | User swipes card | `restaurant_name`, `restaurant_id` |
+| `report_submitted` | User submits issue report | `restaurant_name`, `issue_type` |
+| `suggestion_submitted` | User suggests new spot | `restaurant_name`, `halal_status` |
 
 ## Automated Enrichment
 

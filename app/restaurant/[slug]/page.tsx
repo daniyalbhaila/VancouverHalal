@@ -14,6 +14,7 @@ import { ScrollReset } from "@/components/ScrollReset";
 import { ImageGallery } from "@/components/ImageGallery";
 // import { ReviewsList } from "@/components/ReviewsList"; // Moved to Tabs
 import { RestaurantContentTabs } from "@/components/RestaurantContentTabs";
+import { RestaurantActions } from "@/components/RestaurantActions";
 
 // --- ISR Configuration ---
 // Revalidate this page every hour (3600 seconds)
@@ -251,35 +252,27 @@ export default async function RestaurantPage({
                 </div>
 
                 {/* --- ACTIONS GRID (Desktop/Tablet) --- */}
-                <div className="hidden md:flex gap-3 mt-6 flex-wrap">
-                    {hasPhone && (
-                        <a href={`tel:${phone}`} className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/80 rounded-xl text-sm font-bold transition-colors">
-                            <Phone className="w-4 h-4" /> Call
-                        </a>
-                    )}
-                    {hasWebsite && (
-                        <a href={website!} target="_blank" className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/80 rounded-xl text-sm font-bold transition-colors">
-                            <Globe className="w-4 h-4" /> Website
-                        </a>
-                    )}
-                    <a href={directionsUrl} target="_blank" className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl text-sm font-bold transition-colors shadow-lg shadow-primary/20">
-                        <Navigation className="w-4 h-4" /> Directions
-                    </a>
-                </div>
-
+                <RestaurantActions
+                    phone={phone}
+                    website={website}
+                    directionsUrl={directionsUrl}
+                    variant="desktop"
+                    restaurantName={data.name}
+                    restaurantId={data.id}
+                />
 
                 {/* --- TABBED CONTENT --- */}
-                    <RestaurantContentTabs
-                        openingHours={openingHours}
-                        isOpenNow={data.isOpenNow}
-                        location={data.location}
-                        name={data.name}
-                        slug={data.slug}
-                        address={data.googleData?.formatted_address || data.address}
-                        googleUrl={directionsUrl}
-                        rating={data.rating}
-                        reviews={data.googleData?.reviews}
-                        mockDietaryInfo={mockDietaryInfo}
+                <RestaurantContentTabs
+                    openingHours={openingHours}
+                    isOpenNow={data.isOpenNow}
+                    location={data.location}
+                    name={data.name}
+                    slug={data.slug}
+                    address={data.googleData?.formatted_address || data.address}
+                    googleUrl={directionsUrl}
+                    rating={data.rating}
+                    reviews={data.googleData?.reviews}
+                    mockDietaryInfo={mockDietaryInfo}
                     halalStatus={data.halalStatus}
                 />
 
@@ -287,37 +280,14 @@ export default async function RestaurantPage({
 
             {/* --- STICKY ACTION BAR (Mobile) --- */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-bg-card/90 backdrop-blur-xl border-t border-border/50 z-40 pb-safe">
-                <div className="flex gap-3 justify-center">
-                    {hasWebsite && (
-                        <a
-                            href={website!}
-                            target="_blank"
-                            className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl active:scale-95 transition-all"
-                        >
-                            <Globe className="w-5 h-5" />
-                            <span className="text-[10px] font-bold">Website</span>
-                        </a>
-                    )}
-
-                    {hasPhone && (
-                        <a
-                            href={`tel:${phone}`}
-                            className="flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl active:scale-95 transition-all"
-                        >
-                            <Phone className="w-5 h-5" />
-                            <span className="text-[10px] font-bold">Call</span>
-                        </a>
-                    )}
-
-                    <a
-                        href={directionsUrl}
-                        target="_blank"
-                        className="flex-[1.5] max-w-[150px] flex flex-col items-center justify-center gap-1 py-2.5 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/25 active:scale-95 transition-all"
-                    >
-                        <Navigation className="w-5 h-5" />
-                        <span className="text-[10px] font-bold">Directions</span>
-                    </a>
-                </div>
+                <RestaurantActions
+                    phone={phone}
+                    website={website}
+                    directionsUrl={directionsUrl}
+                    variant="mobile"
+                    restaurantName={data.name}
+                    restaurantId={data.id}
+                />
             </div>
 
         </div>

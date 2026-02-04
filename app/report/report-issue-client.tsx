@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import posthog from 'posthog-js';
 
 export default function ReportIssueClient() {
   const searchParams = useSearchParams();
@@ -70,77 +71,77 @@ export default function ReportIssueClient() {
           </p>
 
           <div className={step === 0 ? 'space-y-4' : 'hidden'}>
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">What’s wrong?</label>
-                <div className="grid gap-2">
-                  {[
-                    { value: 'not_halal', label: 'Not halal / unclear' },
-                    { value: 'wrong_hours', label: 'Incorrect hours' },
-                    { value: 'wrong_address', label: 'Wrong address or pin' },
-                    { value: 'closed', label: 'Permanently closed' },
-                    { value: 'duplicate', label: 'Duplicate listing' },
-                    { value: 'other', label: 'Other issue' },
-                  ].map((option) => (
-                    <label
-                      key={option.value}
-                      className="flex items-center gap-3 rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm font-medium"
-                    >
-                      <input
-                        type="radio"
-                        name="issue_type"
-                        value={option.value}
-                        checked={issueType === option.value}
-                        onChange={(event) => {
-                          setIssueType(event.target.value);
-                          setErrors(null);
-                        }}
-                        className="h-4 w-4"
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">What’s wrong?</label>
+              <div className="grid gap-2">
+                {[
+                  { value: 'not_halal', label: 'Not halal / unclear' },
+                  { value: 'wrong_hours', label: 'Incorrect hours' },
+                  { value: 'wrong_address', label: 'Wrong address or pin' },
+                  { value: 'closed', label: 'Permanently closed' },
+                  { value: 'duplicate', label: 'Duplicate listing' },
+                  { value: 'other', label: 'Other issue' },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex items-center gap-3 rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm font-medium"
+                  >
+                    <input
+                      type="radio"
+                      name="issue_type"
+                      value={option.value}
+                      checked={issueType === option.value}
+                      onChange={(event) => {
+                        setIssueType(event.target.value);
+                        setErrors(null);
+                      }}
+                      className="h-4 w-4"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
               </div>
+            </div>
 
-              {errors && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800">
-                  {errors}
-                </div>
-              )}
+            {errors && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800">
+                {errors}
+              </div>
+            )}
           </div>
 
           <div className={step === 1 ? 'space-y-4' : 'hidden'}>
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Details (optional)</label>
-                <textarea
-                  name="details"
-                  rows={4}
-                  placeholder="Share anything that helps us verify faster"
-                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm outline-none focus:border-emerald-400"
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">Details (optional)</label>
+              <textarea
+                name="details"
+                rows={4}
+                placeholder="Share anything that helps us verify faster"
+                className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm outline-none focus:border-emerald-400"
+              />
+            </div>
           </div>
 
           <div className={step === 2 ? 'space-y-4' : 'hidden'}>
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Your email (optional)</label>
-                <input
-                  type="email"
-                  name="reporter_email"
-                  placeholder="in case we need more info"
-                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm outline-none focus:border-emerald-400"
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">Your email (optional)</label>
+              <input
+                type="email"
+                name="reporter_email"
+                placeholder="in case we need more info"
+                className="w-full rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-card)] px-4 py-3 text-sm outline-none focus:border-emerald-400"
+              />
+            </div>
 
-              <div className="rounded-2xl border border-dashed border-[var(--glass-border)] bg-[var(--bg-card)]/60 px-4 py-3 text-xs text-[var(--text-secondary)]">
-                Reports go to a private review queue. We verify before updating listings.
-              </div>
+            <div className="rounded-2xl border border-dashed border-[var(--glass-border)] bg-[var(--bg-card)]/60 px-4 py-3 text-xs text-[var(--text-secondary)]">
+              Reports go to a private review queue. We verify before updating listings.
+            </div>
 
-              {errors && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800">
-                  {errors}
-                </div>
-              )}
+            {errors && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800">
+                {errors}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-3 pt-2">
@@ -215,6 +216,10 @@ export default function ReportIssueClient() {
                       }
                     }
 
+                    posthog.capture('report_submitted', {
+                      restaurant_name: name,
+                      issue_type: issueType
+                    });
                     window.location.href = '/report/thanks';
                   } catch (error) {
                     setErrors('Submission failed. Please try again.');
