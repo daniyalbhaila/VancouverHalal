@@ -23,14 +23,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://halalmaps.app'),
   title: "Halal Maps - Vancouver",
-  description: "The ultimate guide to the best Halal food in Vancouver, BC. Find top-rated restaurants, browse menus, and discover open spots near you with Halal Maps.",
+  description: "The ultimate guide to finding the best Halal food in Vancouver, BC. Discover top-rated, accessible Halal restaurants, cafes, and hidden gems near you. Updated daily with verified hours and menus.",
   openGraph: {
-    title: "Halal Maps - Vancouver",
-    description: "The ultimate guide to the best Halal food in Vancouver, BC. Find top-rated restaurants, browse menus, and discover open spots near you with Halal Maps.",
+    title: "Halal Maps - Top Rated Halal Restaurants in Vancouver",
+    description: "The ultimate guide to finding the best Halal food in Vancouver, BC. Discover top-rated, accessible Halal restaurants, cafes, and hidden gems near you. Updated daily with verified hours and menus.",
     url: 'https://halalmaps.app',
     siteName: 'Halal Maps',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Halal Maps - Vancouver',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

@@ -132,7 +132,7 @@ export default async function Image() {
                             fontWeight: 500,
                         }}
                     >
-                        Find halal restaurants near you
+                        Discover 50+ Top Rated Restaurants
                     </div>
                 </div>
 
