@@ -41,8 +41,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         };
     }
 
-    const title = `${restaurant.name} - Halal Restaurants in Vancouver | Halal Maps`;
-    const description = `Halal dining guide for ${restaurant.name} in Vancouver. View hours, menu recommendations, and verified halal status on Halal Maps.`;
+    const cuisine = restaurant.categories?.[0] || 'Restaurant';
+    const cityMatch = restaurant.address?.match(/,\s*([^,]+),\s*BC/) || [];
+    const neighborhood = cityMatch[1]?.trim() || 'Vancouver';
+    const ratingStr = restaurant.rating ? ` · ${restaurant.rating}★ (${restaurant.reviews} reviews)` : '';
+
+    const title = `${restaurant.name} – Halal ${cuisine} in ${neighborhood} | Halal Maps`;
+    const description = `${restaurant.name} is a halal ${cuisine.toLowerCase()} restaurant in ${neighborhood}, BC${ratingStr}. View hours, location, and verified halal status on Halal Maps.`;
 
     return {
         title,
@@ -50,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         openGraph: {
             title,
             description,
-            images: restaurant.image ? [restaurant.image] : [],
+            images: restaurant.image ? [{ url: restaurant.image, width: 1200, height: 630, alt: `${restaurant.name} – Halal Maps` }] : [],
         }
     };
 }
@@ -195,10 +200,47 @@ export default async function RestaurantPage({
     // Prepare Opening Hours (Prefer Standard Column, fallback to Google Data)
     const openingHours = data.openingHours || data.googleData?.openingHours;
 
+    const restaurantSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FoodEstablishment',
+        '@id': `https://halalmaps.app/restaurant/${slug}`,
+        name: data.name,
+        url: `https://halalmaps.app/restaurant/${slug}`,
+        ...(data.phone && { telephone: data.phone }),
+        ...(data.website && { sameAs: data.website }),
+        ...(data.googleUrl && { hasMap: data.googleUrl }),
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: data.address,
+            addressLocality: 'Vancouver',
+            addressRegion: 'BC',
+            addressCountry: 'CA',
+        },
+        ...(data.location?.lat && {
+            geo: {
+                '@type': 'GeoCoordinates',
+                latitude: data.location.lat,
+                longitude: data.location.lng,
+            },
+        }),
+        ...(data.categories?.length && { servesCuisine: data.categories }),
+        ...(data.rating && data.reviews && {
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: data.rating,
+                reviewCount: data.reviews,
+                bestRating: 5,
+            },
+        }),
+        ...(data.image && { image: data.image }),
+        priceRange: data.price || undefined,
+    };
+
     return (
         <div
             className="min-h-screen bg-bg-base poub-32"
         >
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }} />
             <ScrollReset />
             <TrackRestaurantView restaurant={data} />
 

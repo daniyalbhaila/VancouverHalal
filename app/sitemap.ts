@@ -6,25 +6,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://halalmaps.app';
     const restaurants = await getDiscoveryRestaurants();
 
-    // Static routes
+    // Static routes — app-only pages (swipe, saved, map) excluded intentionally
     const staticRoutes: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
             lastModified: new Date(),
             changeFrequency: 'daily',
             priority: 1,
-        },
-        {
-            url: `${baseUrl}/swipe`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/saved`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.5,
         },
     ];
 

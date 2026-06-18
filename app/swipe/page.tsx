@@ -1,5 +1,10 @@
+import type { Metadata } from 'next';
 import SwipeClient from '@/components/SwipeClient';
 import { getDiscoveryRestaurants } from '@/lib/data';
+
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+};
 
 export const revalidate = 3600;
 
