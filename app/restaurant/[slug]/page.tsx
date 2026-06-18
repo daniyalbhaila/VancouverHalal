@@ -200,6 +200,10 @@ export default async function RestaurantPage({
     // Prepare Opening Hours (Prefer Standard Column, fallback to Google Data)
     const openingHours = data.openingHours || data.googleData?.openingHours;
 
+    const fullAddress = data.googleData?.formatted_address || data.address || '';
+    const cityMatch = fullAddress.match(/,\s*([^,]+),\s*BC/) || [];
+    const schemaCity = cityMatch[1]?.trim() || 'Vancouver';
+
     const restaurantSchema = {
         '@context': 'https://schema.org',
         '@type': 'FoodEstablishment',
@@ -212,7 +216,7 @@ export default async function RestaurantPage({
         address: {
             '@type': 'PostalAddress',
             streetAddress: data.address,
-            addressLocality: 'Vancouver',
+            addressLocality: schemaCity,
             addressRegion: 'BC',
             addressCountry: 'CA',
         },
