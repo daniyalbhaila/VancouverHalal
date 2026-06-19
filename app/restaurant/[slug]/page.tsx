@@ -204,6 +204,33 @@ export default async function RestaurantPage({
     const cityMatch = fullAddress.match(/,\s*([^,]+),\s*BC/) || [];
     const schemaCity = cityMatch[1]?.trim() || 'Vancouver';
 
+    const citySlug = schemaCity.toLowerCase().replace(/\s+/g, '-');
+
+    const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://halalmaps.app',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: `${schemaCity} Halal Restaurants`,
+                item: `https://halalmaps.app/city/${citySlug}`,
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: data.name,
+                item: `https://halalmaps.app/restaurant/${slug}`,
+            },
+        ],
+    };
+
     const restaurantSchema = {
         '@context': 'https://schema.org',
         '@type': 'FoodEstablishment',
@@ -245,6 +272,7 @@ export default async function RestaurantPage({
             className="min-h-screen bg-bg-base poub-32"
         >
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
             <ScrollReset />
             <TrackRestaurantView restaurant={data} />
 
