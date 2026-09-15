@@ -1,4 +1,4 @@
-import { getRestaurantsByCity } from '@/lib/data';
+import { getRestaurantsByCity, getRestaurantsByBounds } from '@/lib/data';
 import { CITIES, CityKey } from '@/lib/cities';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
@@ -46,7 +46,9 @@ export default async function CityPage({ params }: Props) {
     }
 
     // Limit to top 18 (visually appealing grid 3x6) and ensure at least 200 reviews for credibility
-    const restaurants = await getRestaurantsByCity(cityData.filter, 18, 200);
+    const restaurants = cityData.bounds
+        ? await getRestaurantsByBounds(cityData.bounds, 18, 200)
+        : await getRestaurantsByCity(cityData.filter!, 18, 200);
 
     return (
         <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -149,6 +151,25 @@ export default async function CityPage({ params }: Props) {
                     <Link href="/" className="inline-flex items-center justify-center rounded-full text-base font-semibold ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white hover:bg-emerald-700 h-14 px-8 shadow-lg hover:animate-pulse">
                         Explore All Halal Restaurants
                     </Link>
+                </div>
+
+                <div className="mt-10">
+                    <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
+                        Other Cities
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                        {Object.entries(CITIES)
+                            .filter(([key]) => key !== cityKey)
+                            .map(([key, other]) => (
+                                <Link
+                                    key={key}
+                                    href={`/best-halal-restaurants-in-${key}`}
+                                    className="text-sm px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 transition-colors"
+                                >
+                                    {other.name}
+                                </Link>
+                            ))}
+                    </div>
                 </div>
             </div>
         </main>

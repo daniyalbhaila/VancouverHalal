@@ -220,7 +220,7 @@ export default async function RestaurantPage({
                 '@type': 'ListItem',
                 position: 2,
                 name: `${schemaCity} Halal Restaurants`,
-                item: `https://halalmaps.app/city/${citySlug}`,
+                item: `https://halalmaps.app/best-halal-restaurants-in-${citySlug}`,
             },
             {
                 '@type': 'ListItem',

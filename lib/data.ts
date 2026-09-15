@@ -129,6 +129,33 @@ export async function getRestaurantsByCity(cityFilter: string, limit: number = 1
         });
 }
 
+export async function getRestaurantsByBounds(bounds: { latMin: number; latMax: number; lngMin: number; lngMax: number }, limit: number = 100, minReviews: number = 0): Promise<RestaurantCard[]> {
+    const rawData = await fetchAll<RawRow>("halal_restaurants", {
+        select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed,halal_status",
+        limit,
+        filters: [
+            "or=(permanently_closed.is.false,permanently_closed.is.null)",
+            "or=(temporarily_closed.is.false,temporarily_closed.is.null)",
+            `lat=gte.${bounds.latMin}`,
+            `lat=lte.${bounds.latMax}`,
+            `lng=gte.${bounds.lngMin}`,
+            `lng=lte.${bounds.lngMax}`,
+            `reviews_count=gte.${minReviews}`
+        ],
+    });
+
+    return rawData
+        .filter(r => r && r.name && r.name.trim().length > 0)
+        .map(transformRow)
+        // Sort by Rating (DESC) then Reviews (DESC)
+        .sort((a, b) => {
+            if (b.rating !== a.rating) {
+                return b.rating - a.rating;
+            }
+            return b.reviews - a.reviews;
+        });
+}
+
 export async function getRestaurantById(id: string): Promise<RestaurantCard | null> {
     const rawData = await fetchOne<RawRow>("halal_restaurants", {
         select: "id,name,lat,lng,image_url,categories,rating,reviews_count,address,price,opening_hours,google_url,phone,website,permanently_closed,temporarily_closed,halal_status,google_data",
