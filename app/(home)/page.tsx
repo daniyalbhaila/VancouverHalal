@@ -9,12 +9,12 @@ import type { Metadata } from 'next';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Halal Maps - Top Rated Halal Restaurants in Vancouver',
-  description: "Find the best Halal food near you instantly. Filter by cuisine, check live open status, and browse top-rated Halal restaurants across the Lower Mainland.",
+  title: 'Halal Maps - Halal Restaurants & Food in Vancouver, BC',
+  description: "Find top-rated halal restaurants and halal food across Vancouver, BC. Filter by cuisine, check live hours, and browse by neighborhood or city.",
   keywords: ['Halal Maps', 'Halal food Vancouver', 'Halal restaurants near me', 'Best Halal Vancouver', 'Vancouver Halal Guide', 'Halal Dining BC', 'Zabiha Halal Vancouver'],
   openGraph: {
-    title: 'Halal Maps - Top Rated Halal Restaurants in Vancouver',
-    description: "Find the best Halal food near you instantly. Filter by cuisine, check live open status, and browse top-rated Halal restaurants across the Lower Mainland.",
+    title: 'Halal Maps - Halal Restaurants & Food in Vancouver, BC',
+    description: "Find top-rated halal restaurants and halal food across Vancouver, BC. Filter by cuisine, check live hours, and browse by neighborhood or city.",
     url: 'https://halalmaps.app',
     siteName: 'Halal Maps',
     locale: 'en_US',
