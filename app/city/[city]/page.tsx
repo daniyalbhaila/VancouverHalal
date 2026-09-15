@@ -21,9 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    // Real count, not a hardcoded number — smaller cities (or Downtown's bounding box) won't always hit 18.
+    const restaurants = cityData.bounds
+        ? await getRestaurantsByBounds(cityData.bounds, 18, 200)
+        : await getRestaurantsByCity(cityData.filter!, 18, 200);
+    const count = restaurants.length;
+    const year = new Date().getFullYear();
+
     return {
-        title: `Best Halal Restaurants in ${cityData.name} | Top Rated Halal Food`,
-        description: `Explore the top 18 rated halal restaurants in ${cityData.name}, BC. Filtered by highest rating and most reviews. Discover your next favorite halal spot today.`,
+        title: `Top ${count} Halal Restaurants in ${cityData.name}, BC (${year})`,
+        description: `The top ${count} rated halal restaurants in ${cityData.name}, BC, ranked by rating and review count. Updated ${year} — hours, menus, and directions for every spot.`,
         alternates: {
             canonical: `/best-halal-restaurants-in-${cityKey}`,
         },
