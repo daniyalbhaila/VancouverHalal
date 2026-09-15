@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { cn, getVibeGradient } from '@/lib/utils';
 
@@ -28,7 +29,9 @@ export function RestaurantImage({
   fallbackTextClassName,
   fallbackClassName,
 }: RestaurantImageProps) {
-  if (!src) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
     const gradient = getVibeGradient(seed);
     return (
       <div
@@ -65,6 +68,7 @@ export function RestaurantImage({
       fetchPriority={fetchPriority}
       quality={quality}
       referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
     />
   );
 }

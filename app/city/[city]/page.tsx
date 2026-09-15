@@ -2,9 +2,9 @@ import { getRestaurantsByCity, getRestaurantsByBounds } from '@/lib/data';
 import { CITIES, CityKey } from '@/lib/cities';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
+import { RestaurantImage } from '@/components/RestaurantImage';
 
 type Props = {
     params: Promise<{ city: string }>;
@@ -88,19 +88,13 @@ export default async function CityPage({ params }: Props) {
                                 className="group block bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-800"
                             >
                                 <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-800">
-                                    {restaurant.image ? (
-                                        <Image
-                                            src={restaurant.image}
-                                            alt={restaurant.name}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-400">
-                                            <span className="text-sm">No Image</span>
-                                        </div>
-                                    )}
+                                    <RestaurantImage
+                                        src={restaurant.image}
+                                        alt={restaurant.name}
+                                        seed={restaurant.categories[0] || restaurant.name}
+                                        className="group-hover:scale-105 transition-transform duration-300"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    />
                                     <div className="absolute top-3 right-3 bg-white dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-sm">
                                         <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                                         <span>{restaurant.rating.toFixed(1)}</span>
